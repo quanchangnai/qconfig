@@ -1,0 +1,74 @@
+group 'quan'
+
+apply plugin: 'java'
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
+apply plugin: 'idea'
+
+version 1.0
+sourceCompatibility = JavaVersion.VERSION_11
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+javadoc {
+    options.encoding = 'UTF-8'
+    options.addStringOption('Xdoclint:none', '-quiet')
+}
+
+idea.module {
+    outputDir file("${buildDir}/out/main")
+    testOutputDir file("${buildDir}/out/test")
+}
+
+clean {
+    doLast {
+        file("$projectDir/out").deleteDir()
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+tasks.register('copyDependencies', Copy) {
+    from configurations.runtimeClasspath
+    into "$buildDir/dependencies"
+    include "**/*.jar"
+    includeEmptyDirs false
+}
+
+test {
+    useJUnit()
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url = 'https://maven.aliyun.com/repository/central'
+    }
+}
+
+dependencies {
+    api 'org.slf4j:slf4j-api:1.7.26'
+    api 'org.apache.logging.log4j:log4j-core:2.21.1'
+    api 'org.apache.logging.log4j:log4j-slf4j-impl:2.21.1'
+    api 'org.apache.commons:commons-lang3:3.9'
+    api 'org.aspectj:aspectjweaver:1.9.4'
+    api 'net.bytebuddy:byte-buddy-agent:1.9.13'
+    api 'com.alibaba:fastjson:1.2.83'
+    api 'ognl:ognl:3.4.2'
+    api 'org.dom4j:dom4j:2.1.4'
+    api 'org.apache.poi:poi:5.2.5'
+    api 'org.apache.poi:poi-ooxml:5.2.5'
+    api 'org.apache.commons:commons-csv:1.7'
+    api 'ognl:ognl:3.4.2'
+    implementation 'org.freemarker:freemarker:2.3.30'
+    testImplementation 'junit:junit:4.13'
+}

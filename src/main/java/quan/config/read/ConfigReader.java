@@ -24,7 +24,7 @@ public abstract class ConfigReader {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private String table;
+    private String locale;
 
     private File tableFile;
 
@@ -49,42 +49,31 @@ public abstract class ConfigReader {
 
     private final List<Config> configs = new ArrayList<>();
 
-    protected ConfigReader() {
-
-    }
-
     public ConfigReader(File tableFile, ConfigDefinition configDefinition) {
-        init(tableFile, configDefinition);
-    }
-
-    protected void init(File tableFile, ConfigDefinition configDefinition) {
         this.tableFile = tableFile;
         this.configDefinition = configDefinition;
+
         if (configDefinition != null) {
             converter = new ConfigConverter(configDefinition.getParser());
+            initPrototype(configDefinition.getFullName());
         }
-
-        if (!tableFile.exists()) {
-            initErrors.add(String.format("配置[%s]不存在", tableFile));
-        }
-
-        initPrototype();
     }
 
-    protected void initPrototype() {
-        String configName = configDefinition.getFullName();
+    protected void initPrototype(String configFullName) {
         try {
-            Class<Config> configClass = (Class<Config>) Class.forName(configName);
+            Class<Config> configClass = (Class<Config>) Class.forName(configFullName);
             prototype = configClass.getDeclaredConstructor(JSONObject.class).newInstance(new JSONObject());
-        } catch (Exception e) {
-            initErrors.add(String.format("实例化配置类[%s]失败:%s", configName, e));
+        } catch (Throwable e) {
+            initErrors.add(String.format("实例化配置类[%s]失败:%s", configFullName, e));
         }
     }
 
-    public void setTable(String table) {
-        if (!StringUtils.isBlank(table)) {
-            this.table = table;
-        }
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
     }
 
     public File getTableFile() {
@@ -96,9 +85,7 @@ public abstract class ConfigReader {
     }
 
     public void setTableEncoding(String tableEncoding) {
-        if (!StringUtils.isBlank(tableEncoding)) {
-            this.tableEncoding = tableEncoding;
-        }
+        this.tableEncoding = tableEncoding;
     }
 
     public Config getPrototype() {
@@ -119,13 +106,23 @@ public abstract class ConfigReader {
     }
 
     public List<JSONObject> getJsons() {
+        if (!StringUtils.isBlank(locale) && !tableFile.getName().contains("@")) {
+            StringBuilder localeTableFilePath = new StringBuilder(tableFile.getPath());
+            localeTableFilePath.insert(localeTableFilePath.lastIndexOf("."), "@" + locale);
+            File localeTableFile = new File(localeTableFilePath.toString());
+            if (localeTableFile.exists()) {
+                tableFile = localeTableFile;
+            }
+        }
+
         if (jsons.isEmpty()) {
             if (tableFile.exists()) {
                 read();
             } else {
-                logger.error("文件[{}]不存在", tableFile);
+                logger.error("配置文件[{}]不存在", tableFile);
             }
         }
+
         return jsons;
     }
 
@@ -162,7 +159,7 @@ public abstract class ConfigReader {
     protected void validateColumnNames(List<String> columns) {
         configDefinition.getFields().forEach(f -> f.getColumnNums().clear());
 
-        Set<FieldDefinition> lackingFields = new HashSet<>(configDefinition.getFields());
+        Set<FieldDefinition> missingFields = new HashSet<>(configDefinition.getFields());
         Set<String> validatedColumns = new HashSet<>();
 
         for (int i = 0; i < columns.size(); i++) {
@@ -171,12 +168,12 @@ public abstract class ConfigReader {
             if (fieldDefinition == null) {
                 continue;
             }
-            lackingFields.remove(fieldDefinition);
 
             if (validatedColumns.contains(columnName) && !fieldDefinition.isCollectionType() && !fieldDefinition.isBeanType()) {
-                validatedErrors.add(String.format("配置[%s]的字段类型[%s]不支持对应多列[%s]", table, fieldDefinition.getType(), columnName));
+                validatedErrors.add(String.format("配置[%s]的%s类型[%s]不支持对应多列[%s]", tableFile.getName(), fieldDefinition.getValidatedName(), fieldDefinition.getType(), columnName));
             }
 
+            missingFields.remove(fieldDefinition);
             validatedColumns.add(columnName);
             fieldDefinition.getColumnNums().add(i + 1);
         }
@@ -184,15 +181,15 @@ public abstract class ConfigReader {
         for (FieldDefinition fieldDefinition : configDefinition.getFields()) {
             BeanDefinition fieldBean = fieldDefinition.getTypeBean();
             if (!fieldDefinition.isLegalColumnCount() && fieldBean != null) {
-                validatedErrors.add(String.format("配置[%s]的字段类型[%s]对应列数非法，要么单独对应1列，要么按字段拆开对应%s列", table, fieldDefinition.getType(), fieldBean.getFields().size()));
+                validatedErrors.add(String.format("配置[%s]的%s对应列数非法，要么单独对应1列，要么按%s的字段数量拆开成%s列", tableFile.getName(), fieldDefinition.getValidatedName(), fieldBean.getValidatedName(), fieldBean.getFields().size()));
             }
             if (!fieldDefinition.isLegalColumnCount() && fieldDefinition.isMapType()) {
-                validatedErrors.add(String.format("配置[%s]的字段类型[%s]对应列数非法，要么单独对应1列，要么按键值对拆开对应偶数列", table, fieldDefinition.getType()));
+                validatedErrors.add(String.format("配置[%s]的字段类型[%s]对应列数非法，要么单独对应1列，要么按键值对拆开成偶数列", tableFile.getName(), fieldDefinition.getType()));
             }
         }
 
-        for (FieldDefinition fieldDefinition : lackingFields) {
-            validatedErrors.add(String.format("配置[%s]缺少字段[%s]对应的列[%s]", table, fieldDefinition.getName(), fieldDefinition.getColumn()));
+        for (FieldDefinition fieldDefinition : missingFields) {
+            validatedErrors.add(String.format("配置[%s]缺少%s对应的列[%s]", tableFile.getName(), fieldDefinition.getValidatedName(), fieldDefinition.getColumn()));
         }
     }
 
@@ -231,12 +228,12 @@ public abstract class ConfigReader {
         if (fieldValue == null) {
             //索引字段不能为空，常量key除外
             if (configDefinition.isIndexField(fieldDefinition) && !constantKeyField) {
-                validatedErrors.add(String.format("配置[%s]的第[%d]行第[%s]列[%s]的索引值不能为空", table, row, columnStr, columnName));
+                validatedErrors.add(String.format("配置[%s]的第[%d]行第[%s]列[%s]的索引值不能为空", tableFile.getName(), row, columnStr, columnName));
             }
             //没有默认值的必填字段校验
             boolean cannotNull = fieldDefinition.isEnumType() || fieldDefinition.isTimeType() || fieldDefinition.isBeanType() && fieldDefinition.getColumnNums().size() == 1;
             if (!fieldDefinition.isOptional() && cannotNull) {
-                validatedErrors.add(String.format("配置[%s]的第[%d]行第[%s]列[%s]不能为空", table, row, columnStr, columnName));
+                validatedErrors.add(String.format("配置[%s]的第[%d]行第[%s]列[%s]不能为空", tableFile.getName(), row, columnStr, columnName));
             }
             return;
         } else {
@@ -251,14 +248,14 @@ public abstract class ConfigReader {
                         }
                         columnsStr.append(buildColumnStr(columnNum));
                     }
-                    validatedErrors.add(String.format("配置[%s]的第[%d]行第[%s]列[%s]不能为空", table, row, columnsStr, columnName));
+                    validatedErrors.add(String.format("配置[%s]的第[%d]行第[%s]列[%s]不能为空", tableFile.getName(), row, columnsStr, columnName));
                 }
                 return;
             }
         }
 
         if (constantKeyField && !FieldDefinition.NAME_PATTERN.matcher(fieldValue.toString()).matches()) {
-            validatedErrors.add(String.format("配置[%s]的第[%d]行第[%s]列[%s]的常量key[%s]格式错误,正确格式:%s", table, row, column, columnName, fieldValue, FieldDefinition.NAME_PATTERN));
+            validatedErrors.add(String.format("配置[%s]的第[%d]行第[%s]列[%s]的常量key[%s]格式错误,正确格式:%s", tableFile.getName(), row, column, columnName, fieldValue, FieldDefinition.NAME_PATTERN));
         }
 
         rowJson.put(fieldName, fieldValue);
@@ -282,9 +279,9 @@ public abstract class ConfigReader {
     }
 
     protected void handleConvertException(Exception e, String columnName, String columnValue, int row, String columnStr) {
-        String commonError = String.format("配置[%s]的第[%s]行第[%s]列[%s]数据[%s]错误", table, row, columnStr, columnName, columnValue);
+        String commonError = String.format("配置[%s]的第[%s]行第[%s]列[%s]数据[%s]错误", tableFile.getName(), row, columnStr, columnName, columnValue);
         if (columnValue.isEmpty() || columnValue.length() > 20) {
-            commonError = String.format("配置[%s]的第[%d]行第[%s]列[%s]数据错误", table, row, columnStr, columnName);
+            commonError = String.format("配置[%s]的第[%d]行第[%s]列[%s]数据错误", tableFile.getName(), row, columnStr, columnName);
         }
         if (!(e instanceof ConvertException)) {
             validatedErrors.add(commonError);

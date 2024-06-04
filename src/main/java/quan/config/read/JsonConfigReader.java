@@ -3,7 +3,6 @@ package quan.config.read;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.Validate;
-import quan.config.Config;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,21 +14,9 @@ import java.util.List;
 @SuppressWarnings({"unchecked"})
 public class JsonConfigReader extends ConfigReader {
 
-    private final String configFullName;
-
     public JsonConfigReader(File jsonFile, String configFullName) {
-        this.configFullName = configFullName;
-        init(jsonFile, null);
-    }
-
-    @Override
-    protected void initPrototype() {
-        try {
-            Class<Config> configClass = (Class<Config>) Class.forName(configFullName);
-            prototype = configClass.getDeclaredConstructor(JSONObject.class).newInstance(new JSONObject());
-        } catch (Throwable e) {
-            logger.error("实例化配置类[{}]失败", configFullName, e);
-        }
+        super(jsonFile, null);
+        initPrototype(configFullName);
     }
 
     @Override
@@ -40,7 +27,7 @@ public class JsonConfigReader extends ConfigReader {
             List<JSONObject> jsons = (List<JSONObject>) JSON.parse(availableBytes);
             this.jsons.addAll(jsons);
         } catch (Exception e) {
-            logger.error("读取配置[{}]出错", getTableFile(), e);
+            logger.error("读取配置[{}]出错", getTableFile().getName(), e);
         }
     }
 }

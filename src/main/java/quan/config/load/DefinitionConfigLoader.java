@@ -60,10 +60,11 @@ public class DefinitionConfigLoader extends ConfigLoader {
         tableType = TableType.xlsx;
     }
 
+    private String locale;
+
     private static ThreadLocal<JSONObject> ognlJson = new ThreadLocal<>();
 
     private static ThreadLocal<BeanDefinition> ognlDefinition = new ThreadLocal<>();
-
 
     static {
         OgnlRuntime.setPropertyAccessor(JSONObject.class, new MapPropertyAccessor() {
@@ -101,6 +102,14 @@ public class DefinitionConfigLoader extends ConfigLoader {
     public void setLoadMode(LoadMode loadMode) {
         Objects.requireNonNull(loadMode, "加载模式不能为空");
         this.loadMode = loadMode;
+    }
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
     }
 
     /**
@@ -207,6 +216,7 @@ public class DefinitionConfigLoader extends ConfigLoader {
         }
 
         Objects.requireNonNull(path, "输出路径不能为空");
+
         File pathFile = new File(FileUtils.toPlatPath(path));
         if (!pathFile.exists() && !pathFile.mkdirs()) {
             logger.error("输出路径[{}]创建失败", path);
@@ -224,11 +234,13 @@ public class DefinitionConfigLoader extends ConfigLoader {
             for (String table : configDefinition.getTables()) {
                 ConfigReader reader = readers.get(table);
                 if (reader == null) {
-                    logger.error("配置[{}]从未被加载", table);
+                    logger.error("配置表格[{}]从未被加载", table);
                     continue;
                 }
+
                 List<JSONObject> jsons = reader.getJsons();
                 JSONObject row = new JSONObject();
+
                 for (JSONObject json : jsons) {
                     json.forEach((fieldName, fieldValue) -> {
                         FieldDefinition fieldDefinition = configDefinition.getField(fieldName);
@@ -433,7 +445,7 @@ public class DefinitionConfigLoader extends ConfigLoader {
             }
         }
 
-        configReader.setTable(table + "." + tableType);
+        configReader.setLocale(locale);
         configReader.setTableBodyStartRow(tableBodyStartRow);
         configReader.setTableEncoding(tableEncoding);
 

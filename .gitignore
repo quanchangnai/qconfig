@@ -38,5 +38,6 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-.temp
-.records
+/.temp
+/.records
+/test/json/

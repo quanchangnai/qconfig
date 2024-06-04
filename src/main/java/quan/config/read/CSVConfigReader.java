@@ -42,8 +42,6 @@ public class CSVConfigReader extends ConfigReader {
             setTableEncoding("GBK");
         }
 
-        clear();
-
         List<CSVRecord> records;
         try (CSVParser parser = new CSVParser(new InputStreamReader(Files.newInputStream(getTableFile().toPath()), tableEncoding), CSVFormat.DEFAULT)) {
             records = parser.getRecords();
@@ -58,9 +56,11 @@ public class CSVConfigReader extends ConfigReader {
 
         //第一行是表头
         List<String> columnNames = new ArrayList<>();
+
         for (String columnName : records.get(0)) {
             columnNames.add(columnName.trim());
         }
+
         validateColumnNames(columnNames);
 
         //第[bodyRowNum]行起是正文

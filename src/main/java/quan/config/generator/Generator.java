@@ -280,6 +280,7 @@ public abstract class Generator {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("配置的表格类型[tableType]不合法,当前值:" + tableType + ",合法值:" + Arrays.toString(TableType.values()));
         }
+
         if (StringUtils.isBlank(tablePath)) {
             throw new IllegalArgumentException("配置的表格文件路径[tablePath]不能为空");
         }
@@ -351,10 +352,8 @@ public abstract class Generator {
         configLoader.setParser(parser);
         configLoader.setTableType(tableType);
         configLoader.setTableBodyStartRow(tableBodyStartRow);
-        String tableEncoding = options.getProperty("tableEncoding");
-        if (!StringUtils.isBlank(tableEncoding)) {
-            configLoader.setTableEncoding(tableEncoding);
-        }
+        configLoader.setTableEncoding(options.getProperty("tableEncoding"));
+        configLoader.setLocale(options.getProperty("tableLocale"));
     }
 
     public void generate(boolean printErrors) {
@@ -406,7 +405,7 @@ public abstract class Generator {
             try {
                 oldRecords = JSON.parseObject(new String(Files.readAllBytes(recordsFile.toPath())), HashMap.class);
             } catch (IOException e) {
-                logger.error("", e);
+                logger.error("read records error ", e);
             }
         }
     }
@@ -415,12 +414,11 @@ public abstract class Generator {
         File recordsPath = new File(".records");
         File recordsFile = new File(recordsPath, getClass().getName() + ".json");
         try {
-            if (!recordsPath.exists()) {
-                recordsPath.mkdirs();
+            if (recordsPath.exists() || recordsPath.mkdirs()) {
+                JSON.writeJSONString(new FileWriter(recordsFile), newRecords, SerializerFeature.PrettyFormat);
             }
-            JSON.writeJSONString(new FileWriter(recordsFile), newRecords, SerializerFeature.PrettyFormat);
         } catch (IOException e) {
-            logger.error("", e);
+            logger.error("write records error ", e);
         }
 
         oldRecords.clear();

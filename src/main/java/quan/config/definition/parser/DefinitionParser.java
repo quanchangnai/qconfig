@@ -21,7 +21,9 @@ public abstract class DefinitionParser {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    //包名前缀，没有区分具体语言，切换语言的时候需要重新设置
+    /**
+     * 包名前缀
+     */
     protected String packagePrefix;
 
     /**
@@ -33,7 +35,9 @@ public abstract class DefinitionParser {
 
     protected LinkedHashSet<File> definitionFiles = new LinkedHashSet<>();
 
-    //定义文件的相对路径名
+    /**
+     * 定义文件的相对路径名
+     */
     protected Map<File, String> definitionFilePaths = new HashMap<>();
 
     private Pattern enumNamePattern;
@@ -232,6 +236,9 @@ public abstract class DefinitionParser {
 
         for (File definitionFile : definitionFiles) {
             if (checkFile(definitionFile)) {
+                if (definitionFile.getName().contains(" ")) {
+                    addValidatedError(String.format("定义文件[%s]的名字不能带空格", definitionFile));
+                }
                 try {
                     parseFile(definitionFile);
                 } catch (Exception e) {

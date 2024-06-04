@@ -32,11 +32,10 @@ public class ExcelConfigReader extends ConfigReader {
 
     @Override
     protected void read() {
-        clear();
-
         try (Workbook workbook = WorkbookFactory.create(Files.newInputStream(getTableFile().toPath()))) {
-            //只解析第一个工作表
+            //只读取第一个工作表
             Sheet sheet = workbook.getSheetAt(0);
+
             //总行数
             int totalTowNum = sheet.getLastRowNum() + 1;
             if (totalTowNum < 1) {
@@ -45,9 +44,11 @@ public class ExcelConfigReader extends ConfigReader {
 
             //第一行是表头
             List<String> columnNames = new ArrayList<>();
+
             for (Cell cell : sheet.getRow(0)) {
                 columnNames.add(formatter.formatCellValue(cell).trim());
             }
+
             validateColumnNames(columnNames);
 
             //第[tableBodyStartRow]行起是正文

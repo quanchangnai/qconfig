@@ -12,7 +12,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 /**
- * 常量定义，支持动态读取常量值
+ * 配置常量定义，支持动态读取常量值
  */
 public class ConstantDefinition extends ClassDefinition {
 

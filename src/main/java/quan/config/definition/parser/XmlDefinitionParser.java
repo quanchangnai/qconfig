@@ -68,20 +68,14 @@ public class XmlDefinitionParser extends DefinitionParser {
         }
 
         String definitionFilePath = getDefinitionParser().definitionFilePaths.get(definitionFile);
-
-        //以定义文件名作为包名
-        String packageName = definitionFile.getName().substring(0, definitionFile.getName().lastIndexOf("."));
-        if (!Constants.LOWER_PACKAGE_NAME_PATTERN.matcher(packageName).matches()) {
-            addValidatedError("定义文件[" + definitionFilePath + "]的路径格式错误");
-        }
-
         validateElementAttributes(definitionFilePath, rootElement);
 
-        if (rootElement.getName().equals("classes")) {
-            if (packageName.contains(".")) {
-                packageName = packageName.substring(0, packageName.lastIndexOf("."));
-            } else {
-                packageName = null;
+        String packageName = null;
+        if (rootElement.getName().equals("package")) {
+            //以定义文件名作为包名
+            packageName = definitionFile.getName().substring(0, definitionFile.getName().lastIndexOf("."));
+            if (!Constants.LOWER_PACKAGE_NAME_PATTERN.matcher(packageName).matches()) {
+                addValidatedError("定义文件[" + definitionFilePath + "]的文件名格式错误");
             }
         }
 
@@ -96,7 +90,7 @@ public class XmlDefinitionParser extends DefinitionParser {
             try {
                 classDefinition = parseClassDefinition(definitionFilePath, classElement, index);
             } catch (IllegalArgumentException e) {
-                addValidatedError("定义文件[" + definitionFile + "]不支持定义元素:" + classElement.getName());
+                addValidatedError("定义文件[" + definitionFilePath + "]不支持定义元素:" + classElement.getName());
             }
 
             if (classDefinition == null) {

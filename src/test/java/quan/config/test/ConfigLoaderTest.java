@@ -33,6 +33,9 @@ public class ConfigLoaderTest {
         ConfigLoader configLoader = null;
 
         switch (configLoaderType) {
+            case 1:
+                configLoader = xmlDefinitionConfigLoader();
+                break;
             case 2:
                 configLoader = excelDefinitionConfigLoader();
                 break;
@@ -42,8 +45,6 @@ public class ConfigLoaderTest {
             case 4:
                 configLoader = jsonConfigLoader();
                 break;
-            case 1:
-                configLoader = xmlDefinitionConfigLoader();
         }
 
         if (configLoader == null) {
@@ -76,7 +77,9 @@ public class ConfigLoaderTest {
         DefinitionConfigLoader configLoader = new DefinitionConfigLoader(tablePath);
         configLoader.useXmlDefinition(definitionPaths, "quan.config.test");
         configLoader.initValidators(packagePrefix);
+
         configLoader.setTableType(tableType);
+        configLoader.setLocale("kr");
 
         return configLoader;
     }
@@ -93,6 +96,7 @@ public class ConfigLoaderTest {
         configLoader.setParser(definitionParser);
 
         configLoader.setTableType(tableType);
+        configLoader.setLocale("kr");
 
         return configLoader;
     }
@@ -109,12 +113,13 @@ public class ConfigLoaderTest {
         configLoader.setParser(definitionParser);
 
         configLoader.setTableType(tableType);
+        configLoader.setLocale("kr");
 
         return configLoader;
     }
 
     private static ConfigLoader jsonConfigLoader() {
-        String tablePath = "json";
+        String tablePath = "test/json";
         JsonConfigLoader configLoader = new JsonConfigLoader(tablePath);
         configLoader.initValidators(packagePrefix);
         configLoader.setPackagePrefix(packagePrefix);
@@ -130,6 +135,7 @@ public class ConfigLoaderTest {
         } catch (ValidatedException e) {
             printErrors(e);
         }
+
         printConfig();
 
         System.err.println("configLoader.loadConfig()耗时:" + (System.currentTimeMillis() - startTime) / 1000D + "s");

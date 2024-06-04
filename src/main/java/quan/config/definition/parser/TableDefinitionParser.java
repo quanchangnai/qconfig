@@ -35,9 +35,9 @@ public abstract class TableDefinitionParser extends DefinitionParser {
     private ExtDefinitionParser extDefinitionParser = new ExtDefinitionParser();
 
     /**
-     * 主表路径对应分表路径
+     * 主表:分表
      */
-    private Map<String, Set<String>> mainSubTables = new HashMap<>();
+    private Map<String, Set<String>> mainToSubTables = new HashMap<>();
 
     /**
      * 表名(相对根路径):配置定义
@@ -75,10 +75,7 @@ public abstract class TableDefinitionParser extends DefinitionParser {
 
     @Override
     protected boolean checkFile(File definitionFile) {
-        if (extDefinitionParser.checkFile(definitionFile)) {
-            return true;
-        }
-        return super.checkFile(definitionFile);
+        return extDefinitionParser.checkFile(definitionFile) || super.checkFile(definitionFile);
     }
 
     @Override
@@ -92,10 +89,15 @@ public abstract class TableDefinitionParser extends DefinitionParser {
         String definitionFilePath = definitionFilePaths.get(definitionFile);
         String definitionFileName = definitionFile.getName().substring(0, definitionFile.getName().lastIndexOf("."));
 
-        //分表
-        if (definitionFileName.contains("-")) {
+        if (definitionFileName.contains("-") && !definitionFileName.contains("@")) {
+            //分表
             String mainTableName = definitionFileName.substring(0, definitionFileName.indexOf("-")).trim();
-            mainSubTables.computeIfAbsent(mainTableName, k -> new LinkedHashSet<>()).add(definitionFileName);
+            mainToSubTables.computeIfAbsent(mainTableName, k -> new LinkedHashSet<>()).add(definitionFileName);
+            return;
+        }
+
+        if (definitionFileName.contains("@")) {
+            //地区表
             return;
         }
 
@@ -107,10 +109,10 @@ public abstract class TableDefinitionParser extends DefinitionParser {
         if (definitionFileName.contains(".")) {
             String packageName = definitionFileName.substring(0, definitionFileName.lastIndexOf("."));
             if (!Constants.LOWER_PACKAGE_NAME_PATTERN.matcher(packageName).matches()) {
-                addValidatedError("定义文件[" + definitionFilePath + "]的路径格式错误");
+                addValidatedError("定义文件[" + definitionFilePath + "]的文件名格式错误");
             }
             configDefinition.setPackageName(packageName);
-            configDefinition.setName(definitionFileName.substring(definitionFileName.lastIndexOf(".") + 1));
+            configDefinition.setName(definitionFileName.substring(packageName.length() + 1));
         } else {
             configDefinition.setName(definitionFileName);
         }
@@ -286,10 +288,10 @@ public abstract class TableDefinitionParser extends DefinitionParser {
 
         validateClassName();
 
-        for (String mainTableName : mainSubTables.keySet()) {
+        for (String mainTableName : mainToSubTables.keySet()) {
             ConfigDefinition configDefinition = configDefinitions.get(mainTableName);
             if (configDefinition != null) {
-                String table = mainTableName + "," + String.join(",", mainSubTables.get(mainTableName));
+                String table = mainTableName + "," + String.join(",", mainToSubTables.get(mainTableName));
                 configDefinition.setTable(table);
             }
         }
@@ -354,7 +356,7 @@ public abstract class TableDefinitionParser extends DefinitionParser {
         super.clear();
         extDefinitionParser.clear();
         this.configDefinitions.clear();
-        this.mainSubTables.clear();
+        this.mainToSubTables.clear();
         this.extConfigDefinitions.clear();
     }
 

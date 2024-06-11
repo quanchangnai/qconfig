@@ -97,7 +97,7 @@ public abstract class TableDefinitionParser extends DefinitionParser {
         }
 
         if (definitionFileName.contains("@")) {
-            //地区表
+            //tag表
             return;
         }
 

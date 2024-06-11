@@ -79,7 +79,6 @@ public class ConfigLoaderTest {
         configLoader.initValidators(packagePrefix);
 
         configLoader.setTableType(tableType);
-        configLoader.setLocale("kr");
 
         return configLoader;
     }
@@ -96,7 +95,6 @@ public class ConfigLoaderTest {
         configLoader.setParser(definitionParser);
 
         configLoader.setTableType(tableType);
-        configLoader.setLocale("kr");
 
         return configLoader;
     }
@@ -113,7 +111,6 @@ public class ConfigLoaderTest {
         configLoader.setParser(definitionParser);
 
         configLoader.setTableType(tableType);
-        configLoader.setLocale("kr");
 
         return configLoader;
     }

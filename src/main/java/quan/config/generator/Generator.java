@@ -353,7 +353,7 @@ public abstract class Generator {
         configLoader.setTableType(tableType);
         configLoader.setTableBodyStartRow(tableBodyStartRow);
         configLoader.setTableEncoding(options.getProperty("tableEncoding"));
-        configLoader.setLocale(options.getProperty("tableLocale"));
+        configLoader.setTableTag(options.getProperty("tableTag"));
     }
 
     public void generate(boolean printErrors) {

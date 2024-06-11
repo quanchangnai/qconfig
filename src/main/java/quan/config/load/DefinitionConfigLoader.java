@@ -60,7 +60,7 @@ public class DefinitionConfigLoader extends ConfigLoader {
         tableType = TableType.xlsx;
     }
 
-    private String locale;
+    private String tableTag;
 
     private static ThreadLocal<JSONObject> ognlJson = new ThreadLocal<>();
 
@@ -104,12 +104,12 @@ public class DefinitionConfigLoader extends ConfigLoader {
         this.loadMode = loadMode;
     }
 
-    public String getLocale() {
-        return locale;
+    public String getTableTag() {
+        return tableTag;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setTableTag(String tableTag) {
+        this.tableTag = tableTag;
     }
 
     /**
@@ -445,7 +445,7 @@ public class DefinitionConfigLoader extends ConfigLoader {
             }
         }
 
-        configReader.setLocale(locale);
+        configReader.setTableTag(tableTag);
         configReader.setTableBodyStartRow(tableBodyStartRow);
         configReader.setTableEncoding(tableEncoding);
 

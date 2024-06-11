@@ -24,7 +24,7 @@ public abstract class ConfigReader {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private String locale;
+    private String tableTag;
 
     private File tableFile;
 
@@ -68,12 +68,12 @@ public abstract class ConfigReader {
         }
     }
 
-    public String getLocale() {
-        return locale;
+    public String getTableTag() {
+        return tableTag;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
+    public void setTableTag(String tableTag) {
+        this.tableTag = tableTag;
     }
 
     public File getTableFile() {
@@ -106,12 +106,12 @@ public abstract class ConfigReader {
     }
 
     public List<JSONObject> getJsons() {
-        if (!StringUtils.isBlank(locale) && !tableFile.getName().contains("@")) {
-            StringBuilder localeTableFilePath = new StringBuilder(tableFile.getPath());
-            localeTableFilePath.insert(localeTableFilePath.lastIndexOf("."), "@" + locale);
-            File localeTableFile = new File(localeTableFilePath.toString());
-            if (localeTableFile.exists()) {
-                tableFile = localeTableFile;
+        if (!StringUtils.isBlank(tableTag) && !tableFile.getName().contains("@")) {
+            StringBuilder tagTableFilePath = new StringBuilder(tableFile.getPath());
+            tagTableFilePath.insert(tagTableFilePath.lastIndexOf("."), "@" + tableTag);
+            File tagTableFile = new File(tagTableFilePath.toString());
+            if (tagTableFile.exists()) {
+                tableFile = tagTableFile;
             }
         }
 

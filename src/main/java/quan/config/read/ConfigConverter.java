@@ -467,15 +467,14 @@ public class ConfigConverter {
         if (StringUtils.isBlank(value)) {
             return null;
         }
-        String[] values = value.split(beanDefinition.getEscapedDelimiter(), -1);
-
-        JSONObject object = new JSONObject();
 
         //有子类，按具体类型转换
         boolean beanHasChild = beanDefinition.hasChildren();
+        String[] values = value.split(beanDefinition.getEscapedDelimiter(), -1);
+        JSONObject object = new JSONObject();
+
         if (beanHasChild) {
             String className = ClassDefinition.getLongName(beanDefinition, values[0]);
-
             if (beanDefinition.getMeAndDescendants().contains(className)) {
                 object.put("class", values[0]);
                 beanDefinition = parser.getBeanDefinition(owner, className);

@@ -3,6 +3,8 @@ package quan.config.definition;
 import org.apache.commons.lang3.StringUtils;
 import quan.config.definition.parser.DefinitionParser;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -34,6 +36,11 @@ public abstract class Definition {
     private String comment = "";
 
     protected DefinitionParser parser;
+
+    /**
+     * 附加动态参数
+     */
+    private Map<String, Object> params = new HashMap<>();
 
     public Definition() {
     }
@@ -83,6 +90,10 @@ public abstract class Definition {
         if (!StringUtils.isBlank(comment)) {
             this.comment = comment.trim();
         }
+    }
+
+    public Map<String, Object> getParams() {
+        return params;
     }
 
     public abstract int getKind();

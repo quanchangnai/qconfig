@@ -279,6 +279,7 @@ public abstract class DefinitionParser {
                     validatedErrors.add(classDefinition1.getValidatedName("和") + classDefinition2.getValidatedName() + "名字相同");
                 }
             }
+
             shortName2Classes.computeIfAbsent(classDefinition1.getName(), k -> new HashSet<>()).add(classDefinition1);
 
             ClassDefinition classDefinition3 = longName2Classes.get(classDefinition1.getLongName());
@@ -309,6 +310,7 @@ public abstract class DefinitionParser {
         if (definitionType == null) {
             definitionType = "";
         }
+
         switch (definitionType.trim()) {
             case "csv":
                 return new CSVDefinitionParser();

@@ -10,7 +10,7 @@ import ${import};
 </#if>
  * 代码自动生成，请勿手动修改
  */
-public class ${name} extends <#if parentClassName??>${parentClassName}<#elseif kind ==2>${dn("Bean")}<#else>${dn("Config")}</#if> {
+public class ${name} extends <#if dependentParentName??>${dependentParentName}<#elseif kind ==2>${dn("Bean")}<#else>${dn("Config")}</#if> {
 <#if !selfFields??>
     <#assign selfFields = fields>
 </#if>
@@ -205,7 +205,7 @@ public class ${name} extends <#if parentClassName??>${parentClassName}<#elseif k
     }
 <#if kind ==6>   
 
-    public static class Field <#if parentClassName??>extends ${parentClassName}.Field</#if>{
+    public static class Field <#if dependentParentName??>extends ${dependentParentName}.Field</#if>{
     <#list selfFields as field>
 
         <#if field.comment !="">

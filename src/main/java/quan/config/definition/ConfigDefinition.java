@@ -29,9 +29,6 @@ public class ConfigDefinition extends BeanDefinition {
     //列名:字段
     private final Map<String, FieldDefinition> columnFields = new HashMap<>();
 
-
-    private List<String> rows = new ArrayList<>();
-
     /**
      * 配置数据版本
      */
@@ -181,15 +178,6 @@ public class ConfigDefinition extends BeanDefinition {
             }
         }
         return false;
-    }
-
-    public List<String> getRows() {
-        return rows;
-    }
-
-    public ConfigDefinition setRows(List<String> rows) {
-        this.rows = rows;
-        return this;
     }
 
     public String getVersion2() {

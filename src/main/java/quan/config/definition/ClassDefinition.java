@@ -14,37 +14,61 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  */
 public abstract class ClassDefinition extends Definition {
 
+    /**
+     * 名字格式
+     */
     public static final Pattern NAME_PATTERN = Pattern.compile("[A-Z][a-zA-Z\\d]*");
 
-    //不含前缀的默认包名
+    /**
+     * 不含前缀的默认包名
+     */
     private String packageName;
 
-    //定义文件
+    /**
+     * 定义文件
+     */
     private String definitionFile;
 
-    //定义版本
+    /**
+     * 定义的版本
+     */
     private String version;
 
     private String languageStr;
 
-    //支持的语言
+    /**
+     * 支持的语言
+     */
     protected Set<String> languages = new HashSet<>();
 
-    //依赖的类，Map<依赖的类名, <来源, ClassDefinition>>
+    /**
+     * 依赖的类，Map<依赖的类名, <来源, ClassDefinition>>
+     */
     protected Map<String, TreeMap<DependentSource, ClassDefinition>> dependentsClasses = new HashMap<>();
 
+    /**
+     * 字段定义
+     */
     protected List<FieldDefinition> fields = new LinkedList<>();
 
-    //当前语言
+    /**
+     * 当前语言
+     */
     protected Language currentLanguage;
 
-    //导包，和具体语言相关
+    /**
+     * 导包，和具体语言相关
+     */
     private Map<String, String> imports = new TreeMap<>();
 
-    //依赖类的简单名对应全名，和具体语言相关
+    /**
+     * 依赖类的简单名对应全名，和具体语言相关
+     */
     private Map<String, String> dependentClassNames;
 
-    //字段名:字段定义
+    /**
+     * 字段名:字段定义
+     */
     protected Map<String, FieldDefinition> nameFields = new HashMap<>();
 
     @Override
@@ -126,7 +150,7 @@ public abstract class ClassDefinition extends Definition {
     }
 
     /**
-     * 获取长类名，即和具体语言环境无关的[不含前缀的包名.类名]
+     * 获取长类名:[不含前缀的包名.类名]
      */
     public static String getLongName(ClassDefinition owner, String name) {
         if (!isBlank(owner.getPackageName()) && !isBlank(name) && !name.contains(".")) {

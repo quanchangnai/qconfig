@@ -5,6 +5,10 @@
 ---代码自动生成，请勿手动修改
 ---
 
+<#if params.configReader??>
+local configReader = require("${params.configReader}")
+
+</#if>
 local function load(configs, config, unique, keys)
     local map = configs
     
@@ -30,11 +34,15 @@ local function load(configs, config, unique, keys)
 end
 
 ---所有${name}
+<#if params.configs??>
 local configs = {
-<#list rows as row>
-    ${row},
-</#list>
+    <#list params.configs as config>
+    ${config},
+    </#list>
 }
+<#else>
+local configs = {}
+</#if>
 
 <#list indexes as index>
     <#if !index.isSupportedLanguage("lua")>
@@ -69,6 +77,12 @@ local function loadConfigs()
     end
 end
 
+<#if params.configReader??>
+if (configReader) then
+    configs = configReader.readConfig("${longName}")
+end
+
+</#if>
 loadConfigs()
 
 <#if comment !="">

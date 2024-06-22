@@ -400,20 +400,21 @@ public abstract class Generator {
 
     @SuppressWarnings("unchecked")
     private void readRecords() {
-        File recordsFile = new File(".records" + File.separator + getClass().getName() + ".json");
-        if (recordsFile.exists()) {
-            try {
+        try {
+            File recordsFile = new File(".records", getClass().getSimpleName() + ".json");
+            if (recordsFile.exists()) {
                 oldRecords = JSON.parseObject(new String(Files.readAllBytes(recordsFile.toPath())), HashMap.class);
-            } catch (IOException e) {
-                logger.error("read records error ", e);
             }
+        } catch (IOException e) {
+            logger.error("read records error ", e);
         }
+
     }
 
     protected void writeRecords() {
-        File recordsPath = new File(".records");
-        File recordsFile = new File(recordsPath, getClass().getName() + ".json");
         try {
+            File recordsPath = new File(".records");
+            File recordsFile = new File(recordsPath, getClass().getSimpleName() + ".json");
             if (recordsPath.exists() || recordsPath.mkdirs()) {
                 JSON.writeJSONString(new FileWriter(recordsFile), newRecords, SerializerFeature.PrettyFormat);
             }
@@ -470,8 +471,8 @@ public abstract class Generator {
         }
 
         String fullPackageName = classDefinition.getFullPackageName();
-
         File packagePath;
+
         if (StringUtils.isBlank(fullPackageName)) {
             packagePath = new File(codePath);
         } else {
@@ -496,7 +497,6 @@ public abstract class Generator {
         putRecord(classDefinition);
 
         logger.info("生成配置[{}]完成", classFile);
-
     }
 
     protected void prepareClass(ClassDefinition classDefinition) {
@@ -509,9 +509,11 @@ public abstract class Generator {
 
         //不同包下的同名类依赖
         Map<String, TreeMap<DependentSource, ClassDefinition>> dependentsClasses = classDefinition.getDependentsClasses();
+
         for (String dependentName : dependentsClasses.keySet()) {
             ClassDefinition simpleNameClassDefinition = null;//同名类中只有一个可以使用简单类名
             TreeMap<DependentSource, ClassDefinition> dependentClasses = dependentsClasses.get(dependentName);
+
             for (DependentSource dependentSource : dependentClasses.keySet()) {
                 ClassDefinition dependentClassDefinition = dependentClasses.get(dependentSource);
                 String dependentClassFullName = dependentClassDefinition.getFullName();
@@ -537,7 +539,7 @@ public abstract class Generator {
                     } else if (dependentSource.getType() == DependentType.FIELD_REF) {
                         ((FieldDefinition) dependentSource.getOwnerDefinition()).setRefType(dependentClassFullName);
                     } else if (dependentSource.getType() == DependentType.PARENT) {
-                        ((BeanDefinition) dependentSource.getOwnerDefinition()).setParentClassName(dependentClassFullName);
+                        ((BeanDefinition) dependentSource.getOwnerDefinition()).setDependentParentFullName(dependentClassFullName);
                     } else if (dependentSource.getType() == DependentType.CHILD) {
                         ((BeanDefinition) dependentSource.getOwnerDefinition()).getDependentChildren().put(dependentClassDefinition.getLongName(), dependentClassFullName);
                     }

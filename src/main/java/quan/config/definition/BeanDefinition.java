@@ -19,32 +19,51 @@ import java.util.regex.Pattern;
  */
 public class BeanDefinition extends ClassDefinition {
 
-    //配置的父类名
+    /**
+     * 定义的父类名
+     */
     protected String parentName;
 
-    //和具体语言相关的父类名，可能会包含包名
-    protected String parentClassName;
+    /**
+     * 依赖的父类全名
+     */
+    private String dependentParentFullName;
 
-    //配置的所有后代类长类名
+    /**
+     * 所有后代类的长类名
+     */
     protected TreeSet<String> descendants = new TreeSet<>();
 
     private final TreeSet<String> meAndDescendants = new TreeSet<>();
 
-    //配置的所有子类
+    /**
+     * 所有子类
+     */
     protected Set<BeanDefinition> children = new HashSet<>();
 
-    //和语言无关的带包子类名:和语言相关的完整子类名
+    /**
+     * 和语言无关的带包子类名:和语言相关的完整子类名
+     */
     protected Map<String, String> dependentChildren = new HashMap<>();
 
+    /**
+     * 后代类的最大字段数量
+     */
     protected int descendantMaxFieldCount;
 
+    /**
+     * 自己的字段定义，不含父类的
+     */
     protected List<FieldDefinition> selfFields = new ArrayList<>();
 
-
-    //配置：字段分隔符
+    /**
+     * 字段分隔符
+     */
     private String delimiter;
 
-    //配置：校验规则(OGNL表达式)
+    /**
+     * 校验规则(OGNL表达式)
+     */
     private Set<Object> validations = new LinkedHashSet<>();
 
     private Boolean hasValidation;
@@ -98,16 +117,17 @@ public class BeanDefinition extends ClassDefinition {
         return parentName;
     }
 
-    public BeanDefinition setParentClassName(String parentClassName) {
-        this.parentClassName = parentClassName;
+    public BeanDefinition setDependentParentFullName(String dependentParentFullName) {
+        this.dependentParentFullName = dependentParentFullName;
         return this;
     }
 
-    public String getParentClassName() {
-        if (parentClassName == null) {
+    public String getDependentParentName() {
+        if (StringUtils.isBlank(dependentParentFullName)) {
             return getShortName(parentName);
+        } else {
+            return dependentParentFullName;
         }
-        return parentClassName;
     }
 
     public BeanDefinition getParent() {
@@ -130,7 +150,6 @@ public class BeanDefinition extends ClassDefinition {
         return meAndDescendants;
     }
 
-
     public int getDescendantMaxFieldCount() {
         return descendantMaxFieldCount == 0 ? fields.size() : descendantMaxFieldCount;
     }
@@ -138,7 +157,6 @@ public class BeanDefinition extends ClassDefinition {
     public Map<String, String> getDependentChildren() {
         return dependentChildren;
     }
-
 
     public Set<Object> getValidations() {
         return validations;

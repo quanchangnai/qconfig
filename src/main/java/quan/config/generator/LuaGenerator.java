@@ -19,6 +19,11 @@ import java.util.Properties;
  */
 public class LuaGenerator extends Generator {
 
+    /**
+     * 自定义的配置数据读取器，为空时直接生成配置数据到代码文件里
+     */
+    private String configReader;
+
     public LuaGenerator(Properties options) {
         super(options);
     }
@@ -26,6 +31,12 @@ public class LuaGenerator extends Generator {
     @Override
     protected Language language() {
         return Language.lua;
+    }
+
+    @Override
+    protected void parseOptions(Properties options) {
+        super.parseOptions(options);
+        configReader = options.getProperty("lua.configReader");
     }
 
     @Override
@@ -40,17 +51,21 @@ public class LuaGenerator extends Generator {
     @Override
     protected void prepareBean(BeanDefinition beanDefinition) {
         super.prepareBean(beanDefinition);
-        if (configLoader != null && beanDefinition instanceof ConfigDefinition) {
-            ConfigDefinition configDefinition = (ConfigDefinition) beanDefinition;
-            configDefinition.setVersion2(configDefinition.getVersion() + ":" + configLoader.getConfigVersion(configDefinition, false));
 
-            if (checkChanged(configDefinition)) {
-                List<JSONObject> configJsons = configLoader.loadJsons(configDefinition, true);
-                List<String> rows = new ArrayList<>();
-                for (JSONObject json : configJsons) {
-                    rows.add(configLuaString(configDefinition, json));
+        if (beanDefinition instanceof ConfigDefinition) {
+            ConfigDefinition configDefinition = (ConfigDefinition) beanDefinition;
+            if (!StringUtils.isBlank(configReader)) {
+                configDefinition.getParams().put("configReader", configReader);
+            } else if (configLoader != null) {
+                configDefinition.setVersion2(configDefinition.getVersion() + ":" + configLoader.getConfigVersion(configDefinition, false));
+                if (checkChanged(configDefinition)) {
+                    List<String> configs = new ArrayList<>();
+                    configDefinition.getParams().put("configs", configs);
+                    List<JSONObject> configJsons = configLoader.loadJsons(configDefinition, true);
+                    for (JSONObject configJson : configJsons) {
+                        configs.add(configLuaString(configDefinition, configJson));
+                    }
                 }
-                configDefinition.setRows(rows);
             }
         }
     }

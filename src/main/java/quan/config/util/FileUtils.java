@@ -1,7 +1,5 @@
 package quan.config.util;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
 import java.util.HashSet;
 import java.util.Objects;
@@ -13,18 +11,6 @@ import java.util.regex.Pattern;
  */
 public class FileUtils {
 
-    /**
-     * 转换为当前平台文件路径
-     *
-     * @param path 路径分隔符不明确的路径
-     * @return 转换后的路径
-     */
-    public static String toPlatPath(String path) {
-        if (StringUtils.isBlank(path)) {
-            return path;
-        }
-        return path.replace("/", File.separator).replace("\\", File.separator);
-    }
 
     /**
      * 递归列出子文件

@@ -34,9 +34,9 @@ public class LuaGenerator extends Generator {
     }
 
     @Override
-    protected void parseOptions(Properties options) {
-        super.parseOptions(options);
-        configReader = options.getProperty("lua.configReader");
+    protected void parseParams(Properties params) {
+        super.parseParams(params);
+        configReader = params.getProperty("lua.configReader");
     }
 
     @Override

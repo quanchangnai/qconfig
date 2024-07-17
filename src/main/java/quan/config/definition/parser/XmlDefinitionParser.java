@@ -305,23 +305,23 @@ public class XmlDefinitionParser extends DefinitionParser {
 
         String type = typeInfo == null ? null : typeInfo.split("[:：]")[0];
 
-        List<Object> illegalAttributes = new ArrayList<>(Collections.singleton("name"));
+        List<Object> legalAttributes = new ArrayList<>(Collections.singleton("name"));
 
         if (classDefinition instanceof BeanDefinition && type != null && Constants.NUMBER_TYPES.contains(type)) {
-            illegalAttributes.addAll(Arrays.asList("min", "max"));
+            legalAttributes.addAll(Arrays.asList("min", "max"));
         }
 
         if (classDefinition instanceof EnumDefinition) {
-            illegalAttributes.add("value");
+            legalAttributes.add("value");
         } else {
             if (classDefinition instanceof BeanDefinition) {
-                illegalAttributes.addAll(Arrays.asList("type", "ref", "optional", "validation"));
+                legalAttributes.addAll(Arrays.asList("type", "ref", "optional", "validation"));
 
                 if (classDefinition instanceof ConfigDefinition) {
-                    illegalAttributes.addAll(Arrays.asList("lang", "column"));
+                    legalAttributes.addAll(Arrays.asList("lang", "column"));
                     if (type != null && !Constants.COLLECTION_TYPES.contains(type) && !Constants.TIME_TYPES.contains(type)) {
                         //只支持原生类型和枚举类型，但是在这里没法判断是不是枚举类型
-                        illegalAttributes.add("index");
+                        legalAttributes.add("index");
                     }
                 }
 
@@ -332,11 +332,11 @@ public class XmlDefinitionParser extends DefinitionParser {
             }
 
             if (type != null && Constants.COLLECTION_TYPES.contains(type)) {
-                illegalAttributes.add("delimiter");
+                legalAttributes.add("delimiter");
             }
         }
 
-        validateElementAttributes(classDefinition.getDefinitionFile(), fieldElement, illegalAttributes);
+        validateElementAttributes(classDefinition.getDefinitionFile(), fieldElement, legalAttributes);
 
         return fieldDefinition;
     }

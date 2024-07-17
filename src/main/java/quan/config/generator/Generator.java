@@ -26,7 +26,6 @@ import quan.config.definition.parser.XmlDefinitionParser;
 import quan.config.load.DefinitionConfigLoader;
 import quan.config.read.ConfigConverter;
 import quan.config.util.ClassUtils;
-import quan.config.util.FileUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -56,9 +55,9 @@ public abstract class Generator {
     protected static final Logger logger = LoggerFactory.getLogger(Generator.class);
 
     /**
-     * 生成器选项
+     * 生成器参数
      */
-    protected Properties options;
+    protected Properties params;
 
     protected Map<String, String> basicTypes = new HashMap<>();
 
@@ -115,10 +114,10 @@ public abstract class Generator {
 
     protected Set<String> deleteClasses = new HashSet<>();
 
-    public Generator(Properties options) {
-        parseOptions(options);
+    public Generator(Properties params) {
+        parseParams(params);
         if (enable) {
-            checkOptions();
+            checkParams();
         }
     }
 
@@ -133,7 +132,7 @@ public abstract class Generator {
     }
 
     public void setCodePath(String codePath) {
-        this.codePath = FileUtils.toPlatPath(codePath);
+        this.codePath = codePath;
     }
 
     public void setPackagePrefix(String packagePrefix) {
@@ -155,7 +154,7 @@ public abstract class Generator {
     public void useXmlParser() {
         parser = new XmlDefinitionParser();
         parser.setDefinitionPaths(definitionPaths);
-        parseOptions(options);
+        parseParams(params);
     }
 
     public void useXmlParser(String definitionPath) {
@@ -170,7 +169,7 @@ public abstract class Generator {
 
         this.parser = parser;
 
-        parseOptions(options);
+        parseParams(params);
 
         parser.setDefinitionEncoding(definitionEncoding);
 
@@ -185,72 +184,71 @@ public abstract class Generator {
         return parser;
     }
 
-
     protected abstract Language language();
 
     protected boolean support(ClassDefinition classDefinition) {
         return true;
     }
 
-    protected void parseOptions(Properties options) {
-        this.options = options;
+    protected void parseParams(Properties params) {
+        this.params = params;
 
         String optionPrefix = language() + ".";
 
-        String enable = options.getProperty("enable");
+        String enable = params.getProperty("enable");
         if (!StringUtils.isBlank(enable)) {
             this.enable = enable.trim().equals("true");
         }
 
-        String incremental = options.getProperty("incremental");
+        String incremental = params.getProperty("incremental");
         if (!StringUtils.isBlank(incremental)) {
             this.incremental = incremental.trim().equals("true");
         }
 
-        String definitionPath = options.getProperty("definitionPath");
+        String definitionPath = params.getProperty("definitionPath");
         if (!StringUtils.isBlank(definitionPath)) {
             definitionPaths.addAll(Arrays.asList(definitionPath.split("[,，]")));
         }
 
-        String definitionEncoding = options.getProperty("definitionEncoding");
+        String definitionEncoding = params.getProperty("definitionEncoding");
         if (!StringUtils.isBlank(definitionEncoding)) {
             this.definitionEncoding = definitionEncoding;
         }
 
-        String codePath = options.getProperty(optionPrefix + "codePath");
+        String codePath = params.getProperty(optionPrefix + "codePath");
         if (!StringUtils.isBlank(codePath)) {
             setCodePath(codePath);
         } else {
             this.enable = false;
         }
 
-        packagePrefix = options.getProperty(optionPrefix + "packagePrefix");
+        packagePrefix = params.getProperty(optionPrefix + "packagePrefix");
 
-        definitionType = options.getProperty("definitionType");
+        definitionType = params.getProperty("definitionType");
         if (StringUtils.isBlank(definitionType)) {
             definitionType = "xml";
         }
 
-        tableType = options.getProperty("tableType");
-        tablePath = options.getProperty("tablePath");
-        tableBodyStartRow = options.getProperty("tableBodyStartRow");
+        tableType = params.getProperty("tableType");
+        tablePath = params.getProperty("tablePath");
+        tableBodyStartRow = params.getProperty("tableBodyStartRow");
 
-        ConfigConverter.setDateTimePattern(options.getProperty("datetimePattern"));
-        ConfigConverter.setDatePattern(options.getProperty("datePattern"));
-        ConfigConverter.setTimePattern(options.getProperty("timePattern"));
+        ConfigConverter.setDateTimePattern(params.getProperty("datetimePattern"));
+        ConfigConverter.setDatePattern(params.getProperty("datePattern"));
+        ConfigConverter.setTimePattern(params.getProperty("timePattern"));
 
         if (parser != null) {
             parser.setDefinitionEncoding(definitionEncoding);
-            parser.setConfigNamePattern(options.getProperty("configNamePattern"));
-            parser.setBeanNamePattern(options.getProperty("beanNamePattern"));
-            parser.setEnumNamePattern(options.getProperty("enumNamePattern"));
-            parser.setConstantNamePattern(options.getProperty("constantNamePattern"));
+            parser.setConfigNamePattern(params.getProperty("configNamePattern"));
+            parser.setBeanNamePattern(params.getProperty("beanNamePattern"));
+            parser.setEnumNamePattern(params.getProperty("enumNamePattern"));
+            parser.setConstantNamePattern(params.getProperty("constantNamePattern"));
             parser.setPackagePrefix(packagePrefix);
 
             if (parser instanceof TableDefinitionParser) {
                 TableDefinitionParser tableDefinitionParser = (TableDefinitionParser) parser;
                 for (String language : Language.names()) {
-                    String alias = options.getProperty(language + ".alias");
+                    String alias = params.getProperty(language + ".alias");
                     if (!StringUtils.isBlank(alias)) {
                         tableDefinitionParser.getLanguageAliases().put(language, alias);
                     }
@@ -260,9 +258,9 @@ public abstract class Generator {
     }
 
     /**
-     * 检查生成器必须要设置的选项
+     * 检查生成器参数
      */
-    protected void checkOptions() {
+    protected void checkParams() {
         if (definitionPaths.isEmpty()) {
             throw new IllegalArgumentException("配置的定义文件路径[definitionPaths]不能为空");
         }
@@ -352,8 +350,8 @@ public abstract class Generator {
         configLoader.setParser(parser);
         configLoader.setTableType(tableType);
         configLoader.setTableBodyStartRow(tableBodyStartRow);
-        configLoader.setTableEncoding(options.getProperty("tableEncoding"));
-        configLoader.setTableTag(options.getProperty("tableTag"));
+        configLoader.setTableEncoding(params.getProperty("tableEncoding"));
+        configLoader.setTableTag(params.getProperty("tableTag"));
     }
 
     public void generate(boolean printErrors) {
@@ -361,7 +359,7 @@ public abstract class Generator {
             return;
         }
 
-        checkOptions();
+        checkParams();
         parseDefinitions();
         initConfigLoader(TableType.valueOf(tableType), tablePath);
 
@@ -401,25 +399,24 @@ public abstract class Generator {
     @SuppressWarnings("unchecked")
     private void readRecords() {
         try {
-            File recordsFile = new File(".records", getClass().getSimpleName() + ".json");
+            File recordsFile = new File(".records", "config." + language() + ".json");
             if (recordsFile.exists()) {
                 oldRecords = JSON.parseObject(new String(Files.readAllBytes(recordsFile.toPath())), HashMap.class);
             }
         } catch (IOException e) {
-            logger.error("read records error ", e);
+            logger.error("生成记录写文件失败", e);
         }
-
     }
 
     protected void writeRecords() {
         try {
             File recordsPath = new File(".records");
-            File recordsFile = new File(recordsPath, getClass().getSimpleName() + ".json");
+            File recordsFile = new File(recordsPath, "config." + language() + ".json");
             if (recordsPath.exists() || recordsPath.mkdirs()) {
                 JSON.writeJSONString(new FileWriter(recordsFile), newRecords, SerializerFeature.PrettyFormat);
             }
         } catch (IOException e) {
-            logger.error("write records error ", e);
+            logger.error("生成记录写文件失败", e);
         }
 
         oldRecords.clear();
@@ -496,7 +493,7 @@ public abstract class Generator {
 
         putRecord(classDefinition);
 
-        logger.info("生成配置[{}]完成", classFile);
+        logger.info("生成配置[{}]成功", classFile);
     }
 
     protected void prepareClass(ClassDefinition classDefinition) {
@@ -642,52 +639,52 @@ public abstract class Generator {
     /**
      * 执行代码生成
      *
-     * @param optionsFileName 选项文件名为空时使用默认文件
-     * @param extraOptions    附加的选项会覆盖选项文件里的选项
+     * @param paramsFileName 参数文件名为空时使用默认文件
+     * @param extraParams    附加的参数会覆盖参数文件里的参数
      * @return 成功或失败，部分成功也会返回false
      */
-    public static boolean generate(String optionsFileName, Properties extraOptions) {
+    public static boolean generate(String paramsFileName, Properties extraParams) {
         long startTime = System.currentTimeMillis();
-        Properties options = new Properties();
+        Properties params = new Properties();
 
-        if (!StringUtils.isBlank(optionsFileName)) {
-            File optionsFile = new File(optionsFileName);
-            try (InputStream inputStream = Files.newInputStream(optionsFile.toPath())) {
-                options.load(inputStream);
-                logger.info("加载生成器选项配置文件成功：{}\n", optionsFile.getCanonicalPath());
+        if (!StringUtils.isBlank(paramsFileName)) {
+            File paramsFile = new File(paramsFileName);
+            try (InputStream inputStream = Files.newInputStream(paramsFile.toPath())) {
+                params.load(inputStream);
+                logger.info("加载生成器参数配置文件成功：{}\n", paramsFile.getCanonicalPath());
             } catch (IOException e) {
-                logger.error("加载生成器选项配置文件出错", e);
+                logger.error("加载生成器参数配置文件出错", e);
                 return false;
             }
         }
 
-        if (extraOptions != null) {
-            options.putAll(extraOptions);
+        if (extraParams != null) {
+            params.putAll(extraParams);
         }
 
-        boolean success = generate(options);
+        boolean success = generate(params);
 
         logger.info("生成完成，耗时{}s", (System.currentTimeMillis() - startTime) / 1000D);
         return success;
     }
 
 
-    public static void generate(String optionsFile) {
-        if (StringUtils.isBlank(optionsFile)) {
-            optionsFile = "generator.properties";
+    public static void generate(String paramsFile) {
+        if (StringUtils.isBlank(paramsFile)) {
+            paramsFile = "generator.properties";
         }
-        generate(optionsFile, null);
+        generate(paramsFile, null);
     }
 
-    private static boolean generate(Properties options) {
+    private static boolean generate(Properties params) {
         List<Generator> generators = new ArrayList<>();
 
-        String definitionType = options.getProperty("definitionType");
+        String definitionType = params.getProperty("definitionType");
         DefinitionParser parser = DefinitionParser.createParser(definitionType);
 
         for (Class<?> clazz : ClassUtils.loadClasses(Generator.class.getPackage().getName(), Generator.class, false, null)) {
             try {
-                Generator generator = (Generator) clazz.getConstructor(Properties.class).newInstance(options);
+                Generator generator = (Generator) clazz.getConstructor(Properties.class).newInstance(params);
                 generator.setParser(parser);
                 generators.add(generator);
             } catch (Exception ignored) {
@@ -708,8 +705,8 @@ public abstract class Generator {
     }
 
 
-    private static Properties getExtraOptions(String[] args) {
-        Properties extraOptions = new Properties();
+    private static Properties getExtraParams(String[] args) {
+        Properties extraParams = new Properties();
 
         for (String arg : args) {
             if (!arg.startsWith("--")) {
@@ -722,16 +719,16 @@ public abstract class Generator {
                 optionKey = option.substring(0, option.indexOf("="));
                 optionValue = option.substring(option.indexOf("=") + 1);
             }
-            extraOptions.put(optionKey, optionValue);
+            extraParams.put(optionKey, optionValue);
         }
 
-        return extraOptions;
+        return extraParams;
     }
 
     public static void main(String[] args) {
-        String optionsFile = "";
+        String paramsFile = "";
         if (args.length > 0 && !args[0].startsWith("--")) {
-            optionsFile = args[0];
+            paramsFile = args[0];
         }
 
         boolean exit1OnFail = false;
@@ -739,9 +736,9 @@ public abstract class Generator {
             exit1OnFail = Boolean.parseBoolean(args[1]);
         }
 
-        Properties extraOptions = getExtraOptions(args);
+        Properties extraParams = getExtraParams(args);
 
-        if (!generate(optionsFile, extraOptions) && exit1OnFail) {
+        if (!generate(paramsFile, extraParams) && exit1OnFail) {
             System.exit(1);
         }
     }

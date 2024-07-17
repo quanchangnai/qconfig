@@ -1,9 +1,15 @@
 package quan.config.generator;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import quan.config.Bean;
+import quan.config.Config;
 import quan.config.definition.BeanDefinition;
 import quan.config.definition.ConfigDefinition;
 import quan.config.definition.FieldDefinition;
 import quan.config.definition.Language;
+import quan.config.load.ConfigLoader;
+import quan.config.read.ConfigConverter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -62,9 +68,9 @@ public class JavaGenerator extends Generator {
         classTypes.put("set", "HashSet");
         classTypes.put("list", "ArrayList");
         classTypes.put("map", "HashMap");
-        basicTypes.put("date", "LocalDate");
-        basicTypes.put("time", "LocalTime");
-        basicTypes.put("datetime", "LocalDateTime");
+        classTypes.put("date", "LocalDate");
+        classTypes.put("time", "LocalTime");
+        classTypes.put("datetime", "LocalDateTime");
     }
 
     private void initClassNames() {
@@ -95,12 +101,12 @@ public class JavaGenerator extends Generator {
         classNames.put("LocalDate", LocalDate.class.getName());
         classNames.put("LocalTime", LocalTime.class.getName());
         classNames.put("LocalDateTime", LocalDateTime.class.getName());
-        classNames.put("Bean", "quan.config.Bean");
-        classNames.put("Config", "quan.config.Config");
-        classNames.put("ConfigLoader", "quan.config.load.ConfigLoader");
-        classNames.put("ConfigConverter","quan.config.read.ConfigConverter");
-        classNames.put("JSONObject", "com.alibaba.fastjson.JSONObject");
-        classNames.put("JSONArray", "com.alibaba.fastjson.JSONArray");
+        classNames.put("Bean", Bean.class.getName());
+        classNames.put("Config", Config.class.getName());
+        classNames.put("ConfigLoader", ConfigLoader.class.getName());
+        classNames.put("ConfigConverter", ConfigConverter.class.getName());
+        classNames.put("JSONObject", JSONObject.class.getName());
+        classNames.put("JSONArray", JSONArray.class.getName());
     }
 
     @Override
@@ -110,16 +116,18 @@ public class JavaGenerator extends Generator {
 
     @Override
     protected void prepareBean(BeanDefinition beanDefinition) {
+        beanDefinition.addImport("com.alibaba.fastjson.*");
+
         if (beanDefinition instanceof ConfigDefinition) {
             beanDefinition.addImport("java.util.*");
-            beanDefinition.addImport("quan.config.load.ConfigLoader");
+            beanDefinition.addImport(ConfigLoader.class.getName());
         }
+
         if (beanDefinition.getParent() == null || beanDefinition instanceof ConfigDefinition) {
             beanDefinition.addImport("quan.config.*");
         }
-        beanDefinition.addImport("com.alibaba.fastjson.*");
 
-        super.prepareBean(beanDefinition);
+        beanDefinition.getFields().forEach(this::prepareField);
     }
 
     @Override
@@ -129,7 +137,7 @@ public class JavaGenerator extends Generator {
             fieldDefinition.getOwner().addImport("java.util.*");
         } else if (fieldDefinition.isTimeType()) {
             fieldDefinition.getOwner().addImport("java.time.*");
-            fieldDefinition.getOwner().addImport("quan.config.read.ConfigConverter");
+            fieldDefinition.getOwner().addImport(ConfigConverter.class.getName());
         }
     }
 

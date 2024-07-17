@@ -44,7 +44,7 @@ tasks.register('copyDependencies', Copy) {
 }
 
 test {
-    useJUnit()
+    useJUnitPlatform()
 }
 
 repositories {
@@ -70,5 +70,6 @@ dependencies {
     api 'org.apache.commons:commons-csv:1.7'
     api 'ognl:ognl:3.4.2'
     implementation 'org.freemarker:freemarker:2.3.30'
-    testImplementation 'junit:junit:4.13'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 }

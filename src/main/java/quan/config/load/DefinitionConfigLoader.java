@@ -27,7 +27,6 @@ import quan.config.read.CSVConfigReader;
 import quan.config.read.ConfigReader;
 import quan.config.read.ExcelConfigReader;
 import quan.config.read.JsonConfigReader;
-import quan.config.util.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -217,7 +216,7 @@ public class DefinitionConfigLoader extends ConfigLoader {
 
         Objects.requireNonNull(path, "输出路径不能为空");
 
-        File pathFile = new File(FileUtils.toPlatPath(path));
+        File pathFile = new File(path);
         if (!pathFile.exists() && !pathFile.mkdirs()) {
             logger.error("输出路径[{}]创建失败", path);
             return;

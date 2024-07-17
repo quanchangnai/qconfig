@@ -4,16 +4,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.dom4j.Element;
 import quan.config.definition.ClassDefinition;
+import quan.config.definition.ConfigDefinition;
+import quan.config.definition.ConstantDefinition;
 import quan.config.definition.Constants;
 import quan.config.definition.FieldDefinition;
 import quan.config.definition.Language;
-import quan.config.definition.ConfigDefinition;
-import quan.config.definition.ConstantDefinition;
 import quan.config.util.CollectionUtils;
-import quan.config.util.FileUtils;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -327,7 +330,7 @@ public abstract class TableDefinitionParser extends DefinitionParser {
 
         for (ConfigDefinition extConfigDefinition : extConfigDefinitions.values()) {
             String extTableName = extConfigDefinition.getTable();
-            ConfigDefinition configDefinition = configDefinitions.get(FileUtils.toPlatPath(extTableName));
+            ConfigDefinition configDefinition = configDefinitions.get(extTableName);
             if (configDefinition == null) {
                 addValidatedError(String.format("%s对应的的表格[%s]不存在", extConfigDefinition.getValidatedName(), extTableName));
                 continue;

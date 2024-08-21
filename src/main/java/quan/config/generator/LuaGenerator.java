@@ -1,7 +1,7 @@
 package quan.config.generator;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import quan.config.definition.BeanDefinition;
 import quan.config.definition.ClassDefinition;
@@ -89,14 +89,14 @@ public class LuaGenerator extends Generator {
     }
 
     @Override
-    public void putRecord(ClassDefinition classDefinition) {
+    public void recordHistory(ClassDefinition classDefinition) {
         if (classDefinition instanceof ConfigDefinition) {
             String fullName = classDefinition.getFullName();
             String version = getVersion(classDefinition);
             oldRecords.remove(fullName);
             newRecords.put(fullName, version);
         } else {
-            super.putRecord(classDefinition);
+            super.recordHistory(classDefinition);
         }
     }
 

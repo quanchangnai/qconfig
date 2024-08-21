@@ -1,9 +1,9 @@
 package quan.config.load;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 import ognl.DefaultTypeConverter;
 import ognl.MapPropertyAccessor;
 import ognl.NoSuchPropertyException;
@@ -256,7 +256,7 @@ public class DefinitionConfigLoader extends ConfigLoader {
 
             String jsonFileName = configDefinition.getLongName() + ".json";
             try (FileOutputStream fos = new FileOutputStream(new File(pathFile, jsonFileName))) {
-                JSON.writeJSONString(fos, rows, SerializerFeature.PrettyFormat, SerializerFeature.DisableCircularReferenceDetect);
+                JSON.writeTo(fos, rows, JSONWriter.Feature.PrettyFormat,  JSONWriter.Feature.ReferenceDetection);
             } catch (Exception e) {
                 logger.error("配置[{}]写到JSON文件出错", configDefinition.getName(), e);
             }

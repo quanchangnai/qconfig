@@ -1,6 +1,6 @@
 package quan.config.read;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -66,7 +66,7 @@ public class ExcelConfigReader extends ConfigReader {
                         if (columnValue.startsWith("#")) {
                             break;
                         } else {
-                            rowJson = new JSONObject(true);
+                            rowJson = new JSONObject();
                         }
                     }
                     addColumnToRow(rowJson, columnNames.get(c - 1), columnValue, r, c);

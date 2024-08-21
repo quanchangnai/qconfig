@@ -86,13 +86,7 @@ public class XmlDefinitionParser extends DefinitionParser {
 
             Element classElement = (Element) rootElement.node(index);
 
-            ClassDefinition classDefinition = null;
-            try {
-                classDefinition = parseClassDefinition(definitionFilePath, classElement, index);
-            } catch (IllegalArgumentException e) {
-                addValidatedError("定义文件[" + definitionFilePath + "]不支持定义元素:" + classElement.getName());
-            }
-
+            ClassDefinition classDefinition = parseClassDefinition(definitionFilePath, classElement, index);
             if (classDefinition == null) {
                 continue;
             }
@@ -224,9 +218,10 @@ public class XmlDefinitionParser extends DefinitionParser {
             case "config":
                 validateElementAttributes(definitionFile, element, "name", "table", "lang", "parent");
                 return new ConfigDefinition(element.attributeValue("table"), element.attributeValue("parent"));
+            default:
+                addValidatedError("定义文件[" + definitionFile + "]不支持定义元素:" + element.getName());
+                return null;
         }
-
-        throw new IllegalArgumentException();
     }
 
     protected DefinitionParser getDefinitionParser() {

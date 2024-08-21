@@ -39,5 +39,5 @@ bin/
 .DS_Store
 
 /.temp
-/.records
+/.history
 /test/json/

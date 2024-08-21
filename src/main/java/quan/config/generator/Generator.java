@@ -1,8 +1,8 @@
 package quan.config.generator;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +28,7 @@ import quan.config.read.ConfigConverter;
 import quan.config.util.ClassUtils;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -376,7 +376,7 @@ public abstract class Generator {
 
         initFreemarker();
 
-        readRecords();
+        readHistory();
 
         List<ClassDefinition> classDefinitions = new ArrayList<>();
         for (ClassDefinition classDefinition : parser.getClassDefinitions()) {
@@ -391,39 +391,39 @@ public abstract class Generator {
 
         oldRecords.keySet().forEach(this::delete);
 
-        writeRecords();
+        writeHistory();
 
         logger.info("生成{}配置代码完成\n", language());
     }
 
     @SuppressWarnings("unchecked")
-    private void readRecords() {
+    private void readHistory() {
         try {
-            File recordsFile = new File(".records", "config." + language() + ".json");
-            if (recordsFile.exists()) {
-                oldRecords = JSON.parseObject(new String(Files.readAllBytes(recordsFile.toPath())), HashMap.class);
+            File historyFile = new File(".history", "config." + language() + ".json");
+            if (historyFile.exists()) {
+                oldRecords = JSON.parseObject(new String(Files.readAllBytes(historyFile.toPath())), HashMap.class);
             }
         } catch (IOException e) {
-            logger.error("生成记录写文件失败", e);
+            logger.error("读取生成历史文件失败", e);
         }
     }
 
-    protected void writeRecords() {
+    protected void writeHistory() {
         try {
-            File recordsPath = new File(".records");
-            File recordsFile = new File(recordsPath, "config." + language() + ".json");
-            if (recordsPath.exists() || recordsPath.mkdirs()) {
-                JSON.writeJSONString(new FileWriter(recordsFile), newRecords, SerializerFeature.PrettyFormat);
+            File historyPath = new File(".history");
+            File historyFile = new File(historyPath, "config." + language() + ".json");
+            if (historyPath.exists() || historyPath.mkdirs()) {
+                JSON.writeTo(new FileOutputStream(historyFile), newRecords, JSONWriter.Feature.PrettyFormat);
             }
         } catch (IOException e) {
-            logger.error("生成记录写文件失败", e);
+            logger.error("写入生成历史文件失败", e);
         }
 
         oldRecords.clear();
         newRecords.clear();
     }
 
-    protected void putRecord(ClassDefinition classDefinition) {
+    protected void recordHistory(ClassDefinition classDefinition) {
         String fullName = classDefinition.getFullName();
 
         if (oldRecords.remove(fullName) == null) {
@@ -439,6 +439,7 @@ public abstract class Generator {
     protected void delete(String fullName) {
         count++;
         deleteClasses.add(fullName);
+
         File classFile = new File(codePath, fullName.replace(".", File.separator) + "." + language());
         if (classFile.delete()) {
             logger.error("删除配置[{}]完成", classFile);
@@ -463,7 +464,7 @@ public abstract class Generator {
 
     protected void generate(ClassDefinition classDefinition) {
         if (!checkChanged(classDefinition)) {
-            putRecord(classDefinition);
+            recordHistory(classDefinition);
             return;
         }
 
@@ -491,7 +492,7 @@ public abstract class Generator {
             return;
         }
 
-        putRecord(classDefinition);
+        recordHistory(classDefinition);
 
         logger.info("生成配置[{}]成功", classFile);
     }

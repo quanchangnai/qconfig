@@ -1,7 +1,7 @@
 package quan.config;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 
 import java.util.Objects;
 
@@ -14,7 +14,7 @@ public abstract class Bean {
         this.json = json;
     }
 
-    public String toJson(SerializerFeature... features) {
+    public String toJson(JSONWriter.Feature... features) {
         return json.toString(features);
     }
 

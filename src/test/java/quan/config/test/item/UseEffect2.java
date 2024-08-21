@@ -1,6 +1,6 @@
 package quan.config.test.item;
 
-import com.alibaba.fastjson.*;
+import com.alibaba.fastjson2.*;
 
 /**
  * 使用效果2<br/>

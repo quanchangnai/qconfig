@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Created by quanchangnai on 2017/7/6.
+ * 枚举定义
  */
 public class EnumDefinition extends ClassDefinition {
 

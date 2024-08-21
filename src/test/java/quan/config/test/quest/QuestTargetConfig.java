@@ -1,6 +1,6 @@
 package quan.config.test.quest;
 
-import com.alibaba.fastjson.*;
+import com.alibaba.fastjson2.*;
 import java.time.*;
 import java.util.*;
 import quan.config.*;

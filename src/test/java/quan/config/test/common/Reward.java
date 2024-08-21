@@ -1,6 +1,6 @@
 package quan.config.test.common;
 
-import com.alibaba.fastjson.*;
+import com.alibaba.fastjson2.*;
 import quan.config.*;
 import quan.config.test.item.ItemConfig;
 

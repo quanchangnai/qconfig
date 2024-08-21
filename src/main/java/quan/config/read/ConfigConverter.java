@@ -1,7 +1,7 @@
 package quan.config.read;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import quan.config.definition.BeanDefinition;
 import quan.config.definition.ClassDefinition;

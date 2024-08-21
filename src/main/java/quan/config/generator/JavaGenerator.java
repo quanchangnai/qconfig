@@ -1,7 +1,7 @@
 package quan.config.generator;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import quan.config.Bean;
 import quan.config.Config;
 import quan.config.definition.BeanDefinition;
@@ -116,7 +116,7 @@ public class JavaGenerator extends Generator {
 
     @Override
     protected void prepareBean(BeanDefinition beanDefinition) {
-        beanDefinition.addImport("com.alibaba.fastjson.*");
+        beanDefinition.addImport("com.alibaba.fastjson2.*");
 
         if (beanDefinition instanceof ConfigDefinition) {
             beanDefinition.addImport("java.util.*");

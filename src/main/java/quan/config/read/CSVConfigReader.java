@@ -1,6 +1,6 @@
 package quan.config.read;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -78,7 +78,7 @@ public class CSVConfigReader extends ConfigReader {
                     if (columnValue.startsWith("#")) {
                         break;
                     } else {
-                        rowJson = new JSONObject(true);
+                        rowJson = new JSONObject();
                     }
                 }
                 addColumnToRow(rowJson, columnNames.get(c - 1), columnValue, r, c);

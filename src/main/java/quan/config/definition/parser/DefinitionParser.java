@@ -283,7 +283,7 @@ public abstract class DefinitionParser {
 
             if (shortName2Classes.containsKey(classDefinition1.getName()) && !classDefinition1.isAllowSameName()) {
                 for (ClassDefinition classDefinition2 : shortName2Classes.get(classDefinition1.getName())) {
-                    validatedErrors.add(classDefinition1.getValidatedName("和") + classDefinition2.getValidatedName() + "名字相同");
+                    validatedErrors.add(classDefinition1.getValidationName("和") + classDefinition2.getValidationName() + "名字相同");
                 }
             }
 
@@ -293,14 +293,14 @@ public abstract class DefinitionParser {
             if (classDefinition3 == null) {
                 longName2Classes.put(classDefinition1.getLongName(), classDefinition1);
             } else {
-                validatedErrors.add(classDefinition1.getValidatedName("和") + classDefinition3.getValidatedName() + "名字相同");
+                validatedErrors.add(classDefinition1.getValidationName("和") + classDefinition3.getValidationName() + "名字相同");
             }
 
             ClassDefinition classDefinition4 = dissimilarNameClasses.get(classDefinition1.getLongName().toLowerCase());
             if (classDefinition4 == null) {
                 dissimilarNameClasses.put(classDefinition1.getLongName().toLowerCase(), classDefinition1);
             } else if (!classDefinition1.getLongName().equals(classDefinition4.getLongName())) {
-                validatedErrors.add(classDefinition1.getValidatedName("和") + classDefinition4.getValidatedName() + "名字相似");
+                validatedErrors.add(classDefinition1.getValidationName("和") + classDefinition4.getValidationName() + "名字相似");
             }
         }
     }

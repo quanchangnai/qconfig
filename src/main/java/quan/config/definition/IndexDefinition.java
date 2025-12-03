@@ -168,11 +168,11 @@ public class IndexDefinition extends Definition implements Cloneable {
                 continue;
             }
             if (!isIndex(field.getIndex())) {
-                field.getOwner().addValidatedError(field.getOwner().getValidatedName("的") + field.getValidatedName() + "索引类型[" + field.getIndex() + "]不合法,允许类型" + getLegalTypes());
+                field.getOwner().addValidatedError(field.getOwner().getValidationName("的") + field.getValidationName() + "索引类型[" + field.getIndex() + "]不合法,允许类型" + getLegalTypes());
                 continue;
             }
             if (!field.isPrimitiveType() && !field.isEnumType() && field.getType() != null) {
-                field.getOwner().addValidatedError(field.getOwner().getValidatedName("的") + field.getValidatedName() + "类型[" + field.getType() + "]不支持索引，允许的类型为" + Constants.PRIMITIVE_TYPES + "或枚举");
+                field.getOwner().addValidatedError(field.getOwner().getValidationName("的") + field.getValidationName() + "类型[" + field.getType() + "]不支持索引，允许的类型为" + Constants.PRIMITIVE_TYPES + "或枚举");
                 continue;
             }
 
@@ -194,7 +194,7 @@ public class IndexDefinition extends Definition implements Cloneable {
                 continue;
             }
             if (indexNames.contains(indexDefinition.getName())) {
-                indexDefinition.getOwnerDefinition().addValidatedError(indexDefinition.getOwnerDefinition().getValidatedName() + "的索引名[" + indexDefinition.getName() + "]重复");
+                indexDefinition.getOwnerDefinition().addValidatedError(indexDefinition.getOwnerDefinition().getValidationName() + "的索引名[" + indexDefinition.getName() + "]重复");
                 continue;
             }
             indexNames.add(indexDefinition.getName());
@@ -215,7 +215,7 @@ public class IndexDefinition extends Definition implements Cloneable {
                 }
 
                 if (allSupported == allUnsupported) {
-                    indexDefinition.getOwnerDefinition().addValidatedError(indexDefinition.getOwnerDefinition().getValidatedName() + indexDefinition.getValidatedName() + "的字段支持的语言不一致");
+                    indexDefinition.getOwnerDefinition().addValidatedError(indexDefinition.getOwnerDefinition().getValidationName() + indexDefinition.getValidationName() + "的字段支持的语言不一致");
                     break;
                 }
             }
@@ -234,25 +234,25 @@ public class IndexDefinition extends Definition implements Cloneable {
 
     private void validate() {
         if (getName() == null) {
-            ownerDefinition.addValidatedError(ownerDefinition.getValidatedName() + "的索引名不能为空");
+            ownerDefinition.addValidatedError(ownerDefinition.getValidationName() + "的索引名不能为空");
         } else if (!getNamePattern().matcher(getName()).matches()) {
-            ownerDefinition.addValidatedError(ownerDefinition.getValidatedName() + "的索引名[" + getName() + "]格式错误,正确格式:" + getNamePattern());
+            ownerDefinition.addValidatedError(ownerDefinition.getValidationName() + "的索引名[" + getName() + "]格式错误,正确格式:" + getNamePattern());
         }
 
 
         String indexType = getType();
         if (indexType == null) {
-            ownerDefinition.addValidatedError(ownerDefinition.getValidatedName("的") + getValidatedName() + "类型不能为空");
+            ownerDefinition.addValidatedError(ownerDefinition.getValidationName("的") + getValidationName() + "类型不能为空");
         } else {
             Set<String> legalTypes = getLegalTypes();
             if (!legalTypes.contains(indexType)) {
-                ownerDefinition.addValidatedError(ownerDefinition.getValidatedName("的") + getValidatedName() + "类型[" + indexType + "]非法,允许类型" + legalTypes);
+                ownerDefinition.addValidatedError(ownerDefinition.getValidationName("的") + getValidationName() + "类型[" + indexType + "]非法,允许类型" + legalTypes);
             }
         }
 
         String fieldNames = getFieldNames();
         if (fieldNames == null) {
-            ownerDefinition.addValidatedError(ownerDefinition.getValidatedName("的") + getValidatedName() + "字段不能为空");
+            ownerDefinition.addValidatedError(ownerDefinition.getValidationName("的") + getValidationName() + "字段不能为空");
             return;
         }
 
@@ -266,25 +266,25 @@ public class IndexDefinition extends Definition implements Cloneable {
         }
 
         if (fieldNamePatternError) {
-            ownerDefinition.addValidatedError(ownerDefinition.getValidatedName("的") + getValidatedName() + "字段[" + fieldNames + "]格式错误");
+            ownerDefinition.addValidatedError(ownerDefinition.getValidationName("的") + getValidationName() + "字段[" + fieldNames + "]格式错误");
         } else if (fieldNameArray.length > 3) {
-            ownerDefinition.addValidatedError(ownerDefinition.getValidatedName("的") + getValidatedName() + "字段[" + fieldNames + "]不能超过三个");
+            ownerDefinition.addValidatedError(ownerDefinition.getValidationName("的") + getValidationName() + "字段[" + fieldNames + "]不能超过三个");
         }
 
         for (String fieldName : fieldNameArray) {
             if (StringUtils.isBlank(fieldName)) {
                 continue;
             }
-            FieldDefinition fieldDefinition = ownerDefinition.nameFields.get(fieldName);
+            FieldDefinition fieldDefinition = ownerDefinition.name2Fields.get(fieldName);
             if (fieldDefinition == null) {
-                ownerDefinition.addValidatedError(ownerDefinition.getValidatedName("的") + getValidatedName() + "字段[" + fieldName + "]不存在");
+                ownerDefinition.addValidatedError(ownerDefinition.getValidationName("的") + getValidationName() + "字段[" + fieldName + "]不存在");
                 continue;
             }
             if (!fieldDefinition.isPrimitiveType() && !fieldDefinition.isEnumType() && fieldDefinition.getType() != null) {
-                ownerDefinition.addValidatedError(ownerDefinition.getValidatedName("的") + getValidatedName() + "字段[" + fieldName + "]类型[" + fieldDefinition.getType() + "]非法，允许的类型为" + Constants.PRIMITIVE_TYPES + "或枚举");
+                ownerDefinition.addValidatedError(ownerDefinition.getValidationName("的") + getValidationName() + "字段[" + fieldName + "]类型[" + fieldDefinition.getType() + "]非法，允许的类型为" + Constants.PRIMITIVE_TYPES + "或枚举");
             }
             if (!addField(fieldDefinition)) {
-                ownerDefinition.addValidatedError(ownerDefinition.getValidatedName("的") + getValidatedName() + "字段[" + fieldNames + "]不能重复");
+                ownerDefinition.addValidatedError(ownerDefinition.getValidationName("的") + getValidationName() + "字段[" + fieldNames + "]不能重复");
             }
         }
 

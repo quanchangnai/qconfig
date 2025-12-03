@@ -207,7 +207,7 @@ public class ConfigDefinition extends BeanDefinition {
         for (String t : tables) {
             ConfigDefinition other = parser.getConfigDefinitions().get(t);
             if (other != null && !getName().equals(other.getName())) {
-                addValidatedError(getValidatedName() + other.getValidatedName() + "和表格[" + t + "]不能多对一");
+                addValidatedError(getValidationName() + other.getValidationName() + "和表格[" + t + "]不能多对一");
             }
             parser.getConfigDefinitions().put(t, this);
         }
@@ -231,7 +231,7 @@ public class ConfigDefinition extends BeanDefinition {
                 if (!columnFields.containsKey(field.getColumn())) {
                     columnFields.put(field.getColumn(), field);
                 } else {
-                    addValidatedError(getValidatedName("的") + field.getValidatedName() + "和列[" + field.getColumn() + "]必须一一对应");
+                    addValidatedError(getValidationName("的") + field.getValidationName() + "和列[" + field.getColumn() + "]必须一一对应");
                 }
             }
         }
@@ -259,7 +259,7 @@ public class ConfigDefinition extends BeanDefinition {
         }
 
         if (!parent.languages.containsAll(languages)) {
-            addValidatedError(getValidatedName() + "支持的语言范围" + languages + "必须小于或等于其父配置[" + parentName + "]所支持的语言范围" + parent.languages);
+            addValidatedError(getValidationName() + "支持的语言范围" + languages + "必须小于或等于其父配置[" + parentName + "]所支持的语言范围" + parent.languages);
         }
 
         ConfigDefinition ancestor = parent;
@@ -290,7 +290,7 @@ public class ConfigDefinition extends BeanDefinition {
         validateFieldBeanCycle(field);
 
         if (field.getColumn() == null) {
-            addValidatedError(getValidatedName("的") + field.getValidatedName() + "对应的列不能为空");
+            addValidatedError(getValidationName("的") + field.getValidationName() + "对应的列不能为空");
         } else if (StringUtils.isBlank(field.getComment())) {
             field.setComment(field.getColumn());
         }
@@ -312,7 +312,7 @@ public class ConfigDefinition extends BeanDefinition {
         validateFieldDelimiter(field, delimiters);
 
         if (delimiters.size() != new HashSet<>(delimiters).size()) {
-            addValidatedError(getValidatedName("的") + field.getValidatedName() + "关联分隔符有重复[" + String.join("", delimiters) + "]");
+            addValidatedError(getValidationName("的") + field.getValidationName() + "关联分隔符有重复[" + String.join("", delimiters) + "]");
         }
     }
 
@@ -344,7 +344,7 @@ public class ConfigDefinition extends BeanDefinition {
      */
     @Override
     public String resolveFieldRef(String fieldRef) {
-        if (!fieldRef.contains(".") && nameFields.containsKey(fieldRef)) {
+        if (!fieldRef.contains(".") && name2Fields.containsKey(fieldRef)) {
             fieldRef = getName() + "." + fieldRef;
         }
         return fieldRef;

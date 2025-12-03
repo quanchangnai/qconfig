@@ -243,19 +243,16 @@ public class XmlDefinitionParser extends DefinitionParser {
 
             if (classDefinition instanceof ConfigDefinition) {
                 ConfigDefinition configDefinition = (ConfigDefinition) classDefinition;
-                if (childName.equals("index")) {
-                    configDefinition.addIndex(parseIndex(classDefinition, childElement, index));
-                    continue;
-                }
-
-                if (childName.equals("constant")) {
-                    parseConstant(configDefinition, childElement, index);
-                    continue;
-                }
-
-                if (childName.equals("validations")) {
-                    parseValidations(configDefinition, childElement);
-                    continue;
+                switch (childName) {
+                    case "index":
+                        configDefinition.addIndex(parseIndex(classDefinition, childElement, index));
+                        continue;
+                    case "constant":
+                        parseConstant(configDefinition, childElement, index);
+                        continue;
+                    case "validations":
+                        parseValidations(configDefinition, childElement);
+                        continue;
                 }
             }
 
@@ -285,8 +282,8 @@ public class XmlDefinitionParser extends DefinitionParser {
         classDefinition.addField(fieldDefinition);
 
         fieldDefinition.setName(fieldElement.attributeValue("name"));
-        String typeInfo = fieldElement.attributeValue("type");
-        fieldDefinition.setTypeInfo(typeInfo);
+        String types = fieldElement.attributeValue("type");
+        fieldDefinition.setTypes(types);
         fieldDefinition.setMin(fieldElement.attributeValue("min"));
         fieldDefinition.setMax(fieldElement.attributeValue("max"));
         fieldDefinition.setEnumValue(fieldElement.attributeValue("value"));
@@ -298,8 +295,7 @@ public class XmlDefinitionParser extends DefinitionParser {
         fieldDefinition.setComment(getComment(fieldElement, indexInParent));
         fieldDefinition.setLanguageStr(fieldElement.attributeValue("lang"));
 
-        String type = typeInfo == null ? null : typeInfo.split("[:：]")[0];
-
+        String type = types == null ? null : types.split("[:：]")[0];
         List<Object> legalAttributes = new ArrayList<>(Collections.singleton("name"));
 
         if (classDefinition instanceof BeanDefinition && type != null && Constants.NUMBER_TYPES.contains(type)) {

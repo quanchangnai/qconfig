@@ -40,25 +40,25 @@ test {
 }
 
 repositories {
-    mavenLocal()
-    mavenCentral()
     maven {
         url = 'https://maven.aliyun.com/repository/central'
     }
+    mavenLocal()
+    mavenCentral()
 }
 
 dependencies {
     api 'org.slf4j:slf4j-api:1.7.26'
     api 'org.apache.logging.log4j:log4j-core:2.21.1'
     api 'org.apache.logging.log4j:log4j-slf4j-impl:2.21.1'
-    api 'org.apache.commons:commons-lang3:3.9'
+    api 'org.apache.commons:commons-lang3:3.18.0'
     api 'org.aspectj:aspectjweaver:1.9.4'
     api 'net.bytebuddy:byte-buddy-agent:1.9.13'
     api 'com.alibaba.fastjson2:fastjson2:2.0.52'
     api 'ognl:ognl:3.4.2'
     api 'org.dom4j:dom4j:2.1.4'
     api 'org.apache.poi:poi:5.2.5'
-    api 'org.apache.poi:poi-ooxml:5.2.5'
+    api 'org.apache.poi:poi-ooxml:5.4.0'
     api 'org.apache.commons:commons-csv:1.7'
     api 'ognl:ognl:3.4.2'
     implementation 'org.freemarker:freemarker:2.3.30'

@@ -71,7 +71,7 @@ public class DefinitionConfigLoader extends ConfigLoader {
             public Object getProperty(OgnlContext context, Object target, Object name) throws OgnlException {
                 BeanDefinition beanDefinition = ognlDefinition.get();
                 if (ognlJson.get() == target && beanDefinition != null && beanDefinition.getField(name.toString()) == null) {
-                    throw new OgnlException(String.format("%s不存在字段:%s", beanDefinition.getValidatedName(), name));
+                    throw new OgnlException(String.format("%s不存在字段:%s", beanDefinition.getValidationName(), name));
                 } else {
                     return super.getProperty(context, target, name);
                 }
@@ -565,7 +565,7 @@ public class DefinitionConfigLoader extends ConfigLoader {
         try {
             String validationOwnerInfo = "";
             if (!(beanDefinition instanceof ConfigDefinition)) {
-                validationOwnerInfo = beanDefinition.getValidatedName("的");
+                validationOwnerInfo = beanDefinition.getValidationName("的");
             }
 
             for (Object beanValidation : beanDefinition.getValidations()) {
@@ -594,7 +594,7 @@ public class DefinitionConfigLoader extends ConfigLoader {
                     }
 
                     if (!(beanDefinition instanceof ConfigDefinition)) {
-                        validationOwnerInfo = beanDefinition.getValidatedName() + fieldDefinition.getValidatedName("的");
+                        validationOwnerInfo = beanDefinition.getValidationName() + fieldDefinition.getValidationName("的");
                     }
 
                     try {

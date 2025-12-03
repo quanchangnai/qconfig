@@ -166,41 +166,41 @@ public class ConstantDefinition extends ClassDefinition {
         validateValueField();
 
         if (commentField != null && ownerDefinition.getField(commentField) == null) {
-            addValidatedError(getValidatedName() + "的注释字段[" + commentField + "]在" + ownerDefinition.getValidatedName() + "中不存在");
+            addValidatedError(getValidationName() + "的注释字段[" + commentField + "]在" + ownerDefinition.getValidationName() + "中不存在");
         }
     }
 
     public void validateKeyField() {
         if (StringUtils.isBlank(keyField)) {
-            addValidatedError(getValidatedName() + "的key字段不能为空");
+            addValidatedError(getValidationName() + "的key字段不能为空");
             return;
         }
 
         FieldDefinition keyFieldDefinition = ownerDefinition.getField(keyField);
         if (keyFieldDefinition == null) {
-            addValidatedError(getValidatedName() + "的key字段[" + keyField + "]在" + ownerDefinition.getValidatedName() + "中不存在");
+            addValidatedError(getValidationName() + "的key字段[" + keyField + "]在" + ownerDefinition.getValidationName() + "中不存在");
             return;
         }
 
         if (!keyFieldDefinition.isStringType()) {
-            addValidatedError(getValidatedName() + "的key字段[" + keyField + "]必须是字符串类型");
+            addValidatedError(getValidationName() + "的key字段[" + keyField + "]必须是字符串类型");
         }
 
         keyFieldIndex = ownerDefinition.getIndexByField1(keyFieldDefinition);
         if (keyFieldIndex == null || !keyFieldIndex.isUnique() || keyFieldIndex.getFields().size() > 1) {
-            addValidatedError(getValidatedName() + "的key字段[" + keyField + "]必须是单字段唯一索引");
+            addValidatedError(getValidationName() + "的key字段[" + keyField + "]必须是单字段唯一索引");
         }
     }
 
     public void validateValueField() {
         if (StringUtils.isBlank(valueFieldName)) {
-            addValidatedError(getValidatedName() + "的value字段不能为空");
+            addValidatedError(getValidationName() + "的value字段不能为空");
             return;
         }
 
         FieldDefinition valueFieldDefinition = ownerDefinition.getField(valueFieldName);
         if (valueFieldDefinition == null) {
-            addValidatedError(getValidatedName() + "的value字段[" + valueFieldName + "]在" + ownerDefinition.getValidatedName() + "中不存在");
+            addValidatedError(getValidationName() + "的value字段[" + valueFieldName + "]在" + ownerDefinition.getValidationName() + "中不存在");
             return;
         }
 

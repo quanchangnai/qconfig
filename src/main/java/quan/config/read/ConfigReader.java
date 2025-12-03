@@ -170,7 +170,7 @@ public abstract class ConfigReader {
             }
 
             if (validatedColumns.contains(columnName) && !fieldDefinition.isCollectionType() && !fieldDefinition.isBeanType()) {
-                validatedErrors.add(String.format("配置[%s]的%s类型[%s]不支持对应多列[%s]", tableFile.getName(), fieldDefinition.getValidatedName(), fieldDefinition.getType(), columnName));
+                validatedErrors.add(String.format("配置[%s]的%s类型[%s]不支持对应多列[%s]", tableFile.getName(), fieldDefinition.getValidationName(), fieldDefinition.getType(), columnName));
             }
 
             missingFields.remove(fieldDefinition);
@@ -181,7 +181,7 @@ public abstract class ConfigReader {
         for (FieldDefinition fieldDefinition : configDefinition.getFields()) {
             BeanDefinition fieldBean = fieldDefinition.getTypeBean();
             if (!fieldDefinition.isLegalColumnCount() && fieldBean != null) {
-                validatedErrors.add(String.format("配置[%s]的%s对应列数非法，要么单独对应1列，要么按%s的字段数量拆开成%s列", tableFile.getName(), fieldDefinition.getValidatedName(), fieldBean.getValidatedName(), fieldBean.getFields().size()));
+                validatedErrors.add(String.format("配置[%s]的%s对应列数非法，要么单独对应1列，要么按%s的字段数量拆开成%s列", tableFile.getName(), fieldDefinition.getValidationName(), fieldBean.getValidationName(), fieldBean.getFields().size()));
             }
             if (!fieldDefinition.isLegalColumnCount() && fieldDefinition.isMapType()) {
                 validatedErrors.add(String.format("配置[%s]的字段类型[%s]对应列数非法，要么单独对应1列，要么按键值对拆开成偶数列", tableFile.getName(), fieldDefinition.getType()));
@@ -189,7 +189,7 @@ public abstract class ConfigReader {
         }
 
         for (FieldDefinition fieldDefinition : missingFields) {
-            validatedErrors.add(String.format("配置[%s]缺少%s对应的列[%s]", tableFile.getName(), fieldDefinition.getValidatedName(), fieldDefinition.getColumn()));
+            validatedErrors.add(String.format("配置[%s]缺少%s对应的列[%s]", tableFile.getName(), fieldDefinition.getValidationName(), fieldDefinition.getColumn()));
         }
     }
 

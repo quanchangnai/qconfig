@@ -56,7 +56,7 @@ public class ExcelDefinitionParser extends TableDefinitionParser {
             Row row0 = sheet.getRow(0);
 
             if (row0 == null || sheet.getLastRowNum() < 2) {
-                addValidatedError(configDefinition.getValidatedName() + "的定义文件不完整，要求表头第1行是字段名、第2行时字段约束、第3行是字段注释");
+                addValidatedError(configDefinition.getValidationName() + "的定义文件不完整，要求表头第1行是字段名、第2行时字段约束、第3行是字段注释");
                 return false;
             }
 

@@ -36,9 +36,9 @@ public class EnumDefinition extends ClassDefinition {
         }
 
         if (enumValue <= 0) {
-            addValidatedError(getValidatedName() + "的值[" + fieldDefinition.getEnumValue() + "]必须为正整数");
+            addValidatedError(getValidationName() + "的值[" + fieldDefinition.getEnumValue() + "]必须为正整数");
         } else if (valuesFields.containsKey(enumValue)) {
-            addValidatedError(getValidatedName() + "的值[" + fieldDefinition.getEnumValue() + "]不能重复");
+            addValidatedError(getValidationName() + "的值[" + fieldDefinition.getEnumValue() + "]不能重复");
         } else {
             valuesFields.put(enumValue, fieldDefinition);
         }

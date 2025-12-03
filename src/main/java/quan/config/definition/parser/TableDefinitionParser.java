@@ -148,7 +148,7 @@ public abstract class TableDefinitionParser extends DefinitionParser {
         configDefinition.addField(fieldDefinition);
 
         if (StringUtils.isBlank(constraints)) {
-            addValidatedError(configDefinition.getValidatedName("的") + fieldDefinition.getValidatedName() + "约束不能为空，至少要包含字段类型");
+            addValidatedError(configDefinition.getValidationName("的") + fieldDefinition.getValidationName() + "约束不能为空，至少要包含字段类型");
             return;
         }
 
@@ -157,7 +157,7 @@ public abstract class TableDefinitionParser extends DefinitionParser {
 
         Matcher matcher = constraintsPattern.matcher(constraints);
         if (!matcher.matches()) {
-            addValidatedError(configDefinition.getValidatedName("的") + fieldDefinition.getValidatedName() + "约束[" + originalConstraints + "]格式错误");
+            addValidatedError(configDefinition.getValidationName("的") + fieldDefinition.getValidationName() + "约束[" + originalConstraints + "]格式错误");
             return;
         }
 
@@ -168,8 +168,7 @@ public abstract class TableDefinitionParser extends DefinitionParser {
         }
 
         String[] constraintArray = constraints.split(";", -1);
-
-        fieldDefinition.setTypeInfo(constraintArray[0]);
+        fieldDefinition.setTypes(constraintArray[0]);
 
         Set<String> constraintTypes = new HashSet<>();
 
@@ -214,7 +213,7 @@ public abstract class TableDefinitionParser extends DefinitionParser {
                             constraintValue = constraintTypeAndValue[1].trim();
                             Validate.isTrue(!StringUtils.isBlank(constraintType) && !StringUtils.isBlank(constraintValue));
                         } catch (Exception ignored) {
-                            addValidatedError(configDefinition.getValidatedName() + "的字段[" + fieldName + "]约束[" + constraint + "]错误");
+                            addValidatedError(configDefinition.getValidationName() + "的字段[" + fieldName + "]约束[" + constraint + "]错误");
                             continue;
                         }
                     }
@@ -222,7 +221,7 @@ public abstract class TableDefinitionParser extends DefinitionParser {
             }
 
             if (constraintTypes.contains(constraintType)) {
-                addValidatedError(configDefinition.getValidatedName() + "的字段[" + fieldName + "]有重复约束类型:" + constraintType);
+                addValidatedError(configDefinition.getValidationName() + "的字段[" + fieldName + "]有重复约束类型:" + constraintType);
             } else {
                 constraintTypes.add(constraintType);
             }
@@ -247,7 +246,7 @@ public abstract class TableDefinitionParser extends DefinitionParser {
                     fieldDefinition.setMax(constraintValue);
                     break;
                 default:
-                    addValidatedError(configDefinition.getValidatedName() + "的字段[" + fieldName + "]不支持该约束类型:" + constraintType);
+                    addValidatedError(configDefinition.getValidationName() + "的字段[" + fieldName + "]不支持该约束类型:" + constraintType);
                     break;
             }
         }
@@ -315,7 +314,7 @@ public abstract class TableDefinitionParser extends DefinitionParser {
 
             String tableName = extConfigDefinition.getTable();
             if (tableName == null) {
-                addValidatedError("定义文件[" + extConfigDefinition.getDefinitionFile() + "]中的" + extConfigDefinition.getValidatedName() + "表格名不能为空");
+                addValidatedError("定义文件[" + extConfigDefinition.getDefinitionFile() + "]中的" + extConfigDefinition.getValidationName() + "表格名不能为空");
                 continue;
             }
 
@@ -332,7 +331,7 @@ public abstract class TableDefinitionParser extends DefinitionParser {
             String extTableName = extConfigDefinition.getTable();
             ConfigDefinition configDefinition = configDefinitions.get(extTableName);
             if (configDefinition == null) {
-                addValidatedError(String.format("%s对应的的表格[%s]不存在", extConfigDefinition.getValidatedName(), extTableName));
+                addValidatedError(String.format("%s对应的的表格[%s]不存在", extConfigDefinition.getValidationName(), extTableName));
                 continue;
             }
 

@@ -76,7 +76,7 @@ public abstract class ClassDefinition extends Definition {
     /**
      * 字段名:字段定义
      */
-    protected Map<String, FieldDefinition> nameFields = new HashMap<>();
+    protected Map<String, FieldDefinition> name2Fields = new HashMap<>();
 
     @Override
     public String getKindName() {
@@ -124,7 +124,7 @@ public abstract class ClassDefinition extends Definition {
     }
 
     @Override
-    public String getValidatedName(String append) {
+    public String getValidationName(String append) {
         String kindName = getKindName();
         String validatedName;
         if (getName() != null) {
@@ -199,17 +199,13 @@ public abstract class ClassDefinition extends Definition {
         return fields;
     }
 
-    public Map<String, FieldDefinition> getNameFields() {
-        return nameFields;
-    }
-
     public void addField(FieldDefinition fieldDefinition) {
         fieldDefinition.setOwner(this);
         fields.add(fieldDefinition);
     }
 
     public FieldDefinition getField(String fieldName) {
-        return nameFields.get(fieldName);
+        return name2Fields.get(fieldName);
     }
 
     public String getDefinitionFile() {
@@ -273,6 +269,9 @@ public abstract class ClassDefinition extends Definition {
         return dependentsClasses;
     }
 
+    /**
+     * 第一轮校验
+     */
     public void validate1() {
         validateNameAndLanguage();
 
@@ -282,7 +281,7 @@ public abstract class ClassDefinition extends Definition {
     }
 
     /**
-     * 依赖{@link #validate1()}的结果，必须等所有类的{@link #validate1()}执行完成后再执行
+     * 第二轮校验，依赖{@link #validate1()}的结果
      */
     public void validate2() {
         for (FieldDefinition fieldDefinition : getFields()) {
@@ -291,7 +290,7 @@ public abstract class ClassDefinition extends Definition {
     }
 
     /**
-     * 依赖{@link #validate2()}的结果
+     * 第三轮校验，依赖{@link #validate2()}的结果
      */
     public void validate3() {
         validateDependents();
@@ -302,20 +301,20 @@ public abstract class ClassDefinition extends Definition {
             addValidatedError("定义文件[" + getDefinitionFile() + "]中" + getKindName() + "的名字不能为空");
         } else {
             if (isReservedWord(getName())) {
-                addValidatedError(getValidatedName() + "的名字不合法,不能使用保留字");
+                addValidatedError(getValidationName() + "的名字不合法,不能使用保留字");
             }
             if (!getNamePattern().matcher(getName()).matches()) {
-                addValidatedError(getValidatedName() + "的名字格式错误,正确格式:" + getNamePattern());
+                addValidatedError(getValidationName() + "的名字格式错误,正确格式:" + getNamePattern());
             }
             if (getIllegalNames().contains(getName())) {
-                addValidatedError(getValidatedName() + "的名字不合法");
+                addValidatedError(getValidationName() + "的名字不合法");
             }
         }
 
         try {
             languages = Language.parse(languageStr);
         } catch (IllegalArgumentException e) {
-            addValidatedError(getValidatedName() + "的语言约束[" + languageStr + "]非法,合法的语言类型" + Language.names());
+            addValidatedError(getValidationName() + "的语言约束[" + languageStr + "]非法,合法的语言类型" + Language.names());
         }
     }
 
@@ -332,18 +331,18 @@ public abstract class ClassDefinition extends Definition {
      */
     protected void validateFieldName(FieldDefinition fieldDefinition) {
         if (fieldDefinition.getName() == null) {
-            addValidatedError(getValidatedName() + "的字段名不能为空");
+            addValidatedError(getValidationName() + "的字段名不能为空");
             return;
         }
 
         //校验字段名格式
         if (!fieldDefinition.getNamePattern().matcher(fieldDefinition.getName()).matches()) {
-            addValidatedError(getValidatedName() + "的字段名[" + fieldDefinition.getName() + "]格式错误,正确格式:" + fieldDefinition.getNamePattern());
+            addValidatedError(getValidationName() + "的字段名[" + fieldDefinition.getName() + "]格式错误,正确格式:" + fieldDefinition.getNamePattern());
             return;
         }
 
         if (isReservedWord(fieldDefinition.getName())) {
-            addValidatedError(getValidatedName() + "的字段名[" + fieldDefinition.getName() + "]不合法，不能使用保留字");
+            addValidatedError(getValidationName() + "的字段名[" + fieldDefinition.getName() + "]不合法，不能使用保留字");
         }
     }
 
@@ -355,10 +354,10 @@ public abstract class ClassDefinition extends Definition {
         if (fieldDefinition.getName() == null) {
             return;
         }
-        if (nameFields.containsKey(fieldDefinition.getName())) {
-            addValidatedError(getValidatedName() + "的字段名[" + fieldDefinition.getName() + "]不能重复");
+        if (name2Fields.containsKey(fieldDefinition.getName())) {
+            addValidatedError(getValidationName() + "的字段名[" + fieldDefinition.getName() + "]不能重复");
         } else {
-            nameFields.put(fieldDefinition.getName(), fieldDefinition);
+            name2Fields.put(fieldDefinition.getName(), fieldDefinition);
         }
     }
 

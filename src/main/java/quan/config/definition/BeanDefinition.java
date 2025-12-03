@@ -224,7 +224,7 @@ public class BeanDefinition extends ClassDefinition {
                 String validationStr = (String) validation;
                 expressions.add(Ognl.parseExpression(validationStr));
             } catch (OgnlException e) {
-                addValidatedError(getValidatedName() + "的校验表达式[" + validation + "]错误:" + e.getMessage());
+                addValidatedError(getValidationName() + "的校验表达式[" + validation + "]错误:" + e.getMessage());
             }
         }
 
@@ -265,20 +265,20 @@ public class BeanDefinition extends ClassDefinition {
         }
 
         if (delimiter != null) {
-            addValidatedError(getValidatedName() + "的分隔符继承自父类，不支持自定义");
+            addValidatedError(getValidationName() + "的分隔符继承自父类，不支持自定义");
         }
 
         if (getLanguageStr() != null) {
-            addValidatedError(getValidatedName() + "的语言约束继承自父类，不支持自定义");
+            addValidatedError(getValidationName() + "的语言约束继承自父类，不支持自定义");
         }
 
         BeanDefinition parent = getParent();
         if (parent == null) {
-            addValidatedError(getValidatedName() + "的父" + getKindName() + "[" + parentName + "]不存在");
+            addValidatedError(getValidationName() + "的父" + getKindName() + "[" + parentName + "]不存在");
             return;
         }
         if (parent.getClass() != getClass()) {
-            addValidatedError(getValidatedName() + "的父" + getKindName() + "[" + parentName + "]类型不合法");
+            addValidatedError(getValidationName() + "的父" + getKindName() + "[" + parentName + "]类型不合法");
         }
 
         parent.children.add(this);
@@ -291,7 +291,7 @@ public class BeanDefinition extends ClassDefinition {
             delimiter = ancestor.delimiter;
 
             if (ancestors.contains(ancestor.getLongName())) {
-                addValidatedError(getValidatedName() + "和" + ancestors + "的父子关系不能有循环");
+                addValidatedError(getValidationName() + "和" + ancestors + "的父子关系不能有循环");
                 return;
             }
 
@@ -359,7 +359,7 @@ public class BeanDefinition extends ClassDefinition {
             String validationStr = ((String) validation).trim();
             field.setValidation(Ognl.parseExpression((validationStr)));
         } catch (OgnlException e) {
-            addValidatedError(getValidatedName("的") + field.getValidatedName() + "的校验表达式[" + validation + "]错误:" + e.getMessage());
+            addValidatedError(getValidationName("的") + field.getValidationName() + "的校验表达式[" + validation + "]错误:" + e.getMessage());
         }
     }
 
@@ -367,28 +367,28 @@ public class BeanDefinition extends ClassDefinition {
      * 校验字段类型
      */
     protected void validateFieldType(FieldDefinition field) {
-        if (field.getTypeInfo() == null) {
-            addValidatedError(getValidatedName("的") + field.getValidatedName() + "类型不能为空");
+        if (field.getTypes() == null) {
+            addValidatedError(getValidationName("的") + field.getValidationName() + "类型不能为空");
             return;
         }
 
-        String[] fieldTypes = field.getTypeInfo().split("[:：]", -1);
+        String[] fieldTypes = field.getTypes().split("[:：]", -1);
         String fieldType = fieldTypes[0];
 
         if (fieldTypes.length == 1 && StringUtils.isBlank(fieldType)) {
-            addValidatedError(getValidatedName("的") + field.getValidatedName() + "类型不能为空");
+            addValidatedError(getValidationName("的") + field.getValidationName() + "类型不能为空");
             return;
         }
 
         field.setType(fieldType);
         if (!field.isLegalType()) {
-            addValidatedError(getValidatedName("的") + field.getValidatedName() + "类型[" + fieldType + "]不合法");
+            addValidatedError(getValidationName("的") + field.getValidationName() + "类型[" + fieldType + "]不合法");
             field.setType(null);
             return;
         }
 
         if (fieldTypes.length != 1 && !field.isCollectionType()) {
-            addValidatedError(getValidatedName("的") + field.getValidatedName() + "类型[" + field.getTypeInfo() + "]格式错误");
+            addValidatedError(getValidationName("的") + field.getValidationName() + "类型[" + field.getTypes() + "]格式错误");
             return;
         }
 
@@ -396,10 +396,10 @@ public class BeanDefinition extends ClassDefinition {
             if (fieldTypes.length == 2 && !StringUtils.isBlank(fieldTypes[1])) {
                 field.setValueType(fieldTypes[1]);
                 if (!field.isLegalValueType()) {
-                    addValidatedError(getValidatedName("的[") + field.getType() + "]类型" + field.getValidatedName() + "的值类型[" + field.getValueType() + "]不合法");
+                    addValidatedError(getValidationName("的[") + field.getType() + "]类型" + field.getValidationName() + "的值类型[" + field.getValueType() + "]不合法");
                 }
             } else {
-                addValidatedError(getValidatedName("的") + field.getValidatedName() + "类型[" + field.getTypeInfo() + "]格式错误，合法格式[" + fieldType + ":值类型]");
+                addValidatedError(getValidationName("的") + field.getValidationName() + "类型[" + field.getTypes() + "]格式错误，合法格式[" + fieldType + ":值类型]");
             }
         }
 
@@ -408,13 +408,13 @@ public class BeanDefinition extends ClassDefinition {
                 field.setKeyType(fieldTypes[1]);
                 field.setValueType(fieldTypes[2]);
                 if (!field.isPrimitiveKeyType()) {
-                    addValidatedError(getValidatedName("的[") + field.getType() + "]类型" + field.getValidatedName() + "的键类型[" + field.getKeyType() + "]不合法");
+                    addValidatedError(getValidationName("的[") + field.getType() + "]类型" + field.getValidationName() + "的键类型[" + field.getKeyType() + "]不合法");
                 }
                 if (!field.isLegalValueType()) {
-                    addValidatedError(getValidatedName("的[") + field.getType() + "]类型" + field.getValidatedName() + "的值类型[" + field.getValueType() + "]不合法");
+                    addValidatedError(getValidationName("的[") + field.getType() + "]类型" + field.getValidationName() + "的值类型[" + field.getValueType() + "]不合法");
                 }
             } else {
-                addValidatedError(getValidatedName("的") + field.getValidatedName() + "类型[" + field.getTypeInfo() + "]格式错误，合法格式[" + fieldType + ":键类型:值类型]");
+                addValidatedError(getValidationName("的") + field.getValidationName() + "类型[" + field.getTypes() + "]格式错误，合法格式[" + fieldType + ":键类型:值类型]");
             }
         }
 
@@ -437,11 +437,11 @@ public class BeanDefinition extends ClassDefinition {
                         minValue = Double.parseDouble((String) min);
                         field.setMin(minValue);
                     } catch (NumberFormatException e2) {
-                        addValidatedError(getValidatedName("的") + field.getValidatedName() + "最小值限制[" + min + "]不能为非数字");
+                        addValidatedError(getValidationName("的") + field.getValidationName() + "最小值限制[" + min + "]不能为非数字");
                     }
                 }
             } else {
-                addValidatedError(getValidatedName("的") + field.getValidatedName() + "类型[" + field.getType() + "]不支持最小值限制");
+                addValidatedError(getValidationName("的") + field.getValidationName() + "类型[" + field.getType() + "]不支持最小值限制");
             }
         }
 
@@ -458,16 +458,16 @@ public class BeanDefinition extends ClassDefinition {
                         maxValue = Double.parseDouble((String) max);
                         field.setMax(maxValue);
                     } catch (NumberFormatException e2) {
-                        addValidatedError(getValidatedName("的") + field.getValidatedName() + "最大值限制[" + min + "]不能为非数字");
+                        addValidatedError(getValidationName("的") + field.getValidationName() + "最大值限制[" + min + "]不能为非数字");
                     }
                 }
             } else {
-                addValidatedError(getValidatedName("的") + field.getValidatedName() + "类型[" + field.getType() + "]不支持最大值限制");
+                addValidatedError(getValidationName("的") + field.getValidationName() + "类型[" + field.getType() + "]不支持最大值限制");
             }
         }
 
         if (minValue != null && maxValue != null && Double.compare(minValue.doubleValue(), maxValue.doubleValue()) > 0) {
-            addValidatedError(getValidatedName("的") + field.getValidatedName() + "最小值限制[" + minValue + "]不能大于最大值限制[" + maxValue + "]");
+            addValidatedError(getValidationName("的") + field.getValidationName() + "最小值限制[" + minValue + "]不能大于最大值限制[" + maxValue + "]");
         }
     }
 
@@ -494,7 +494,7 @@ public class BeanDefinition extends ClassDefinition {
         }
 
         if (fieldBeans.contains(fieldBean)) {
-            addValidatedError(getValidatedName("的") + rootField.getValidatedName() + "循环依赖类型[" + fieldBean.getName() + "]");
+            addValidatedError(getValidationName("的") + rootField.getValidationName() + "循环依赖类型[" + fieldBean.getName() + "]");
             return true;
         }
 
@@ -517,7 +517,7 @@ public class BeanDefinition extends ClassDefinition {
         try {
             field.getLanguages().addAll(Language.parse(languages, field.getLanguageStr()));
         } catch (IllegalArgumentException e) {
-            addValidatedError(getValidatedName("的") + field.getValidatedName() + "语言约束[" + field.getLanguageStr() + "]非法,合法语言类型" + languages);
+            addValidatedError(getValidationName("的") + field.getValidationName() + "语言约束[" + field.getLanguageStr() + "]非法,合法语言类型" + languages);
         }
     }
 
@@ -559,7 +559,7 @@ public class BeanDefinition extends ClassDefinition {
             }
 
             if (refError) {
-                addValidatedError(getValidatedName() + field.getValidatedName() + "的引用格式错误[" + field.getRef() + "]，正确格式:[(配置.)字段]");
+                addValidatedError(getValidationName() + field.getValidationName() + "的引用格式错误[" + field.getRef() + "]，正确格式:[(配置.)字段]");
             }
 
             return;
@@ -567,7 +567,7 @@ public class BeanDefinition extends ClassDefinition {
 
         //map类型字段引用校验
         String[] fieldRefs = field.getRef().split("[:：]", -1);
-        String mapRefErrorMsg = getValidatedName("的") + field.getValidatedName() + "类型[map]的引用格式错误[" + field.getRef() + "]，正确格式:[(键引用配置.)字段]或者[(键引用配置.)字段:(值引用配置.)字段]";
+        String mapRefErrorMsg = getValidationName("的") + field.getValidationName() + "类型[map]的引用格式错误[" + field.getRef() + "]，正确格式:[(键引用配置.)字段]或者[(键引用配置.)字段:(值引用配置.)字段]";
         if (fieldRefs.length != 1 && fieldRefs.length != 2) {
             addValidatedError(mapRefErrorMsg);
             return;
@@ -613,43 +613,43 @@ public class BeanDefinition extends ClassDefinition {
 
         ConfigDefinition refConfig = parser.getConfigDefinition(this, refConfigName);
         if (refConfig == null) {
-            addValidatedError(getValidatedName() + field.getValidatedName() + "的引用配置[" + refConfigName + "]不存在");
+            addValidatedError(getValidationName() + field.getValidationName() + "的引用配置[" + refConfigName + "]不存在");
             return;
         }
 
         FieldDefinition refField = refConfig.getField(refFiledName);
         if (refField == null) {
-            addValidatedError(getValidatedName() + field.getValidatedName() + "的引用字段[" + refConfigAndField + "]不存在");
+            addValidatedError(getValidationName() + field.getValidationName() + "的引用字段[" + refConfigAndField + "]不存在");
             return;
         }
 
         if (refField == field) {
-            addValidatedError(getValidatedName() + field.getValidatedName() + "不能引用自己");
+            addValidatedError(getValidationName() + field.getValidationName() + "不能引用自己");
             return;
         }
 
         for (String language : languages) {
             Set<String> refFieldLanguages = refField.getLanguages();
             if (!refFieldLanguages.contains(language)) {
-                addValidatedError(getValidatedName() + "支持的语言范围" + languages + "必须小于或等于其" + field.getValidatedName() + "的引用[" + refConfigAndField + "]支持的语言范围" + refFieldLanguages);
+                addValidatedError(getValidationName() + "支持的语言范围" + languages + "必须小于或等于其" + field.getValidationName() + "的引用[" + refConfigAndField + "]支持的语言范围" + refFieldLanguages);
                 break;
             }
         }
 
         if (field.isCollectionType()) {
             if (keyType && field.isPrimitiveKeyType() && !field.getKeyType().equals(refField.getType()) && refField.getType() != null) {
-                addValidatedError(getValidatedName("的") + field.getValidatedName() + "类型[" + field.getType() + "]的键类型[" + field.getKeyType() + "]和引用字段[" + refConfigAndField + "]的类型[" + refField.getType() + "]不一致");
+                addValidatedError(getValidationName("的") + field.getValidationName() + "类型[" + field.getType() + "]的键类型[" + field.getKeyType() + "]和引用字段[" + refConfigAndField + "]的类型[" + refField.getType() + "]不一致");
             }
             if (!keyType && field.isLegalValueType() && !field.getValueType().equals(refField.getType()) && refField.getType() != null) {
-                addValidatedError(getValidatedName("的") + field.getValidatedName() + "类型[" + field.getType() + "]的值类型[" + field.getValueType() + "]和引用字段[" + refConfigAndField + "]的类型[" + refField.getType() + "]不一致");
+                addValidatedError(getValidationName("的") + field.getValidationName() + "类型[" + field.getType() + "]的值类型[" + field.getValueType() + "]和引用字段[" + refConfigAndField + "]的类型[" + refField.getType() + "]不一致");
             }
         } else if (!field.getType().equals(refField.getType()) && refField.getType() != null) {
-            addValidatedError(getValidatedName("的") + field.getValidatedName() + "的类型[" + field.getType() + "]和引用字段[" + refConfigAndField + "]的类型[" + refField.getType() + "]不一致");
+            addValidatedError(getValidationName("的") + field.getValidationName() + "的类型[" + field.getType() + "]和引用字段[" + refConfigAndField + "]的类型[" + refField.getType() + "]不一致");
         }
 
         IndexDefinition refFieldIndex = refConfig.getIndexByField1(refField);
         if (refFieldIndex == null) {
-            addValidatedError(getValidatedName() + field.getValidatedName() + "的引用字段[" + refConfigAndField + "]不是一级索引");
+            addValidatedError(getValidationName() + field.getValidationName() + "的引用字段[" + refConfigAndField + "]不是一级索引");
         }
     }
 
@@ -667,7 +667,7 @@ public class BeanDefinition extends ClassDefinition {
             return;
         }
         if (!fieldBean.languages.containsAll(this.languages)) {
-            addValidatedError(getValidatedName() + "支持的语言范围" + languages + "必须小于或等于其依赖" + fieldBean.getValidatedName() + "支持的语言范围" + fieldBean.languages);
+            addValidatedError(getValidationName() + "支持的语言范围" + languages + "必须小于或等于其依赖" + fieldBean.getValidationName() + "支持的语言范围" + fieldBean.languages);
         }
     }
 
@@ -677,15 +677,15 @@ public class BeanDefinition extends ClassDefinition {
         }
 
         if (delimiter.length() != 1) {
-            addValidatedError(getValidatedName() + "的分隔符[" + delimiter + "]长度必须1个字符");
+            addValidatedError(getValidationName() + "的分隔符[" + delimiter + "]长度必须1个字符");
         } else if (!Constants.LEGAL_DELIMITERS.contains(delimiter)) {
-            addValidatedError(getValidatedName() + "的分隔符[" + delimiter + "]非法,合法分隔符" + Constants.LEGAL_DELIMITERS);
+            addValidatedError(getValidationName() + "的分隔符[" + delimiter + "]非法,合法分隔符" + Constants.LEGAL_DELIMITERS);
         } else {
             List<String> delimiters = new ArrayList<>();
             validateDelimiter(this, delimiters);
 
             if (delimiters.size() != new HashSet<>(delimiters).size()) {
-                addValidatedError(getValidatedName() + "关联分隔符有重复[" + String.join("", delimiters) + "]");
+                addValidatedError(getValidationName() + "关联分隔符有重复[" + String.join("", delimiters) + "]");
             }
         }
     }
@@ -711,7 +711,7 @@ public class BeanDefinition extends ClassDefinition {
             String s = String.valueOf(delimiter.charAt(i));
             delimiters.add(s);
             if (!Constants.LEGAL_DELIMITERS.contains(s)) {
-                addValidatedError(getValidatedName("的") + field.getValidatedName() + "的分隔符[" + delimiter + "]非法,合法分隔符" + Constants.LEGAL_DELIMITERS);
+                addValidatedError(getValidationName("的") + field.getValidationName() + "的分隔符[" + delimiter + "]非法,合法分隔符" + Constants.LEGAL_DELIMITERS);
             }
         }
 
@@ -723,11 +723,11 @@ public class BeanDefinition extends ClassDefinition {
             if (delimiter.length() != 2) {
                 charNumError = 2;
             } else if (delimiter.charAt(0) == delimiter.charAt(1)) {
-                addValidatedError(getValidatedName("的") + field.getValidatedName() + "类型[map]的分隔符[" + delimiter + "]必须是2个不同的字符");
+                addValidatedError(getValidationName("的") + field.getValidationName() + "类型[map]的分隔符[" + delimiter + "]必须是2个不同的字符");
             }
         }
         if (charNumError > 0) {
-            addValidatedError(getValidatedName() + "[" + field.getType() + "]类型字段" + field.getValidatedName() + "的分隔符[" + delimiter + "]必须是" + charNumError + "个字符");
+            addValidatedError(getValidationName() + "[" + field.getType() + "]类型字段" + field.getValidationName() + "的分隔符[" + delimiter + "]必须是" + charNumError + "个字符");
         }
 
         BeanDefinition fieldValueBean = field.getValueTypeBean();

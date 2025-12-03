@@ -18,7 +18,7 @@ public class FieldDefinition extends Definition implements Cloneable {
     private ClassDefinition owner;
 
     //原始定义的字段类型,集合类型包含其元素类型
-    private String typeInfo;
+    private String types;
 
     //拆分后的字段类型
     private String type;
@@ -113,13 +113,13 @@ public class FieldDefinition extends Definition implements Cloneable {
     }
 
 
-    public String getTypeInfo() {
-        return typeInfo;
+    public String getTypes() {
+        return types;
     }
 
-    public void setTypeInfo(String typeInfo) {
-        if (!StringUtils.isBlank(typeInfo)) {
-            this.typeInfo = typeInfo;
+    public void setTypes(String types) {
+        if (!StringUtils.isBlank(types)) {
+            this.types = types;
         }
     }
 

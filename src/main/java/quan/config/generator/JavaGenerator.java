@@ -11,20 +11,7 @@ import quan.config.definition.Language;
 import quan.config.load.ConfigLoader;
 import quan.config.read.ConfigConverter;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * 生成Java代码的配置生成器
@@ -74,33 +61,33 @@ public class JavaGenerator extends Generator {
     }
 
     private void initClassNames() {
-        classNames.put("Boolean", Boolean.class.getName());
-        classNames.put("Short", Short.class.getName());
-        classNames.put("Integer", Integer.class.getName());
-        classNames.put("Long", Long.class.getName());
-        classNames.put("Float", Float.class.getName());
-        classNames.put("Double", Double.class.getName());
-        classNames.put("String", String.class.getName());
+        classNames.put("Boolean", "java.lang.Boolean");
+        classNames.put("Short", "java.lang.Short");
+        classNames.put("Integer", "java.lang.Integer");
+        classNames.put("Long", "java.lang.Long");
+        classNames.put("Float", "java.lang.Float");
+        classNames.put("Double","java.lang.Double");
+        classNames.put("String", "java.lang.String");
 
-        classNames.put("Set", Set.class.getName());
-        classNames.put("HashSet", HashSet.class.getName());
-        classNames.put("List", List.class.getName());
-        classNames.put("ArrayList", ArrayList.class.getName());
-        classNames.put("Map", Map.class.getName());
-        classNames.put("HashMap", HashMap.class.getName());
+        classNames.put("Set", "java.util.Set");
+        classNames.put("HashSet", "java.util.HashSet");
+        classNames.put("List", "java.util.List");
+        classNames.put("ArrayList", "java.util.ArrayList");
+        classNames.put("Map", "java.util.Map");
+        classNames.put("HashMap", "java.util.HashMap");
 
-        classNames.put("Object", Object.class.getName());
-        classNames.put("Class", Class.class.getName());
-        classNames.put("Override", Override.class.getName());
-        classNames.put("SuppressWarnings", SuppressWarnings.class.getName());
+        classNames.put("Object", "java.lang.Object");
+        classNames.put("Class", "java.lang.Class");
+        classNames.put("Override", "java.lang.Override");
+        classNames.put("SuppressWarnings", "java.lang.SuppressWarnings");
 
-        classNames.put("Objects", Objects.class.getName());
-        classNames.put("Arrays", Arrays.class.getName());
-        classNames.put("Collection", Collection.class.getName());
-        classNames.put("Collections", Collections.class.getName());
-        classNames.put("LocalDate", LocalDate.class.getName());
-        classNames.put("LocalTime", LocalTime.class.getName());
-        classNames.put("LocalDateTime", LocalDateTime.class.getName());
+        classNames.put("Objects", "java.lang.Objects");
+        classNames.put("Arrays", "java.util.Arrays");
+        classNames.put("Collection", "java.util.Collection");
+        classNames.put("Collections", "java.util.Collections");
+        classNames.put("LocalDate", "java.time.LocalDate");
+        classNames.put("LocalTime", "java.time.LocalTime");
+        classNames.put("LocalDateTime", "java.time.LocalDateTime");
         classNames.put("Bean", Bean.class.getName());
         classNames.put("Config", Config.class.getName());
         classNames.put("ConfigLoader", ConfigLoader.class.getName());

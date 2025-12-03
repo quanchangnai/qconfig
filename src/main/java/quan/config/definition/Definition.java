@@ -57,19 +57,21 @@ public abstract class Definition {
         return name;
     }
 
-    public String getValidatedName() {
-        return getValidatedName("");
+    public String getValidationName() {
+        return getValidationName("");
     }
 
-    public String getValidatedName(String append) {
+    public String getValidationName(String append) {
         String kindName = getKindName();
-        String validatedName;
+        String validationName;
+
         if (name != null) {
-            validatedName = kindName + "[" + name + "]" + append;
+            validationName = kindName + "[" + name + "]" + append;
         } else {
-            validatedName = kindName + append;
+            validationName = kindName + append;
         }
-        return validatedName;
+
+        return validationName;
     }
 
     public void setName(String name) {

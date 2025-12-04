@@ -3,7 +3,6 @@ package quan.config.definition;
 import com.alibaba.fastjson2.JSONObject;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import quan.config.definition.DependentSource.DependentType;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public class ConstantDefinition extends ClassDefinition {
     //是否使用枚举或者模拟枚举实现，不支持的语言该参数没有意义
     private boolean useEnum = true;
 
-    private String keyField;
+    private String keyFieldName;
 
     private IndexDefinition keyFieldIndex;
 
@@ -33,7 +32,7 @@ public class ConstantDefinition extends ClassDefinition {
 
     private String commentField;
 
-    private Map<String, Pair<String, String>> rows = new TreeMap<>();
+    private Map<String, String> rows = new TreeMap<>();
 
     private String updatedVersion;
 
@@ -95,7 +94,7 @@ public class ConstantDefinition extends ClassDefinition {
 
     public void setKeyField(String keyField) {
         if (!StringUtils.isBlank(keyField)) {
-            this.keyField = keyField.trim();
+            this.keyFieldName = keyField.trim();
         }
     }
 
@@ -112,7 +111,7 @@ public class ConstantDefinition extends ClassDefinition {
     }
 
     public FieldDefinition getKeyField() {
-        return ownerDefinition.getField(keyField);
+        return ownerDefinition.getField(keyFieldName);
     }
 
     public FieldDefinition getValueField() {
@@ -121,17 +120,15 @@ public class ConstantDefinition extends ClassDefinition {
 
     public void setConfigs(List<JSONObject> configs) {
         for (JSONObject config : configs) {
-            String key = config.getString(keyField);
-            if (key == null || !FieldDefinition.NAME_PATTERN.matcher(key).matches()) {
-                continue;
+            String key = config.getString(keyFieldName);
+            if (key != null && FieldDefinition.NAME_PATTERN.matcher(key).matches()) {
+                String comment = commentField == null || !config.containsKey(commentField) ? "" : config.getString(commentField);
+                rows.put(key, comment);
             }
-            String value = config.getString(valueFieldName);
-            String comment = commentField == null ? "" : config.getString(commentField);
-            rows.put(key, Pair.of(value, comment));
         }
     }
 
-    public Map<String, Pair<String, String>> getRows() {
+    public Map<String, String> getRows() {
         return rows;
     }
 
@@ -171,24 +168,24 @@ public class ConstantDefinition extends ClassDefinition {
     }
 
     public void validateKeyField() {
-        if (StringUtils.isBlank(keyField)) {
+        if (StringUtils.isBlank(keyFieldName)) {
             addValidatedError(getValidationName() + "的key字段不能为空");
             return;
         }
 
-        FieldDefinition keyFieldDefinition = ownerDefinition.getField(keyField);
+        FieldDefinition keyFieldDefinition = ownerDefinition.getField(keyFieldName);
         if (keyFieldDefinition == null) {
-            addValidatedError(getValidationName() + "的key字段[" + keyField + "]在" + ownerDefinition.getValidationName() + "中不存在");
+            addValidatedError(getValidationName() + "的key字段[" + keyFieldName + "]在" + ownerDefinition.getValidationName() + "中不存在");
             return;
         }
 
         if (!keyFieldDefinition.isStringType()) {
-            addValidatedError(getValidationName() + "的key字段[" + keyField + "]必须是字符串类型");
+            addValidatedError(getValidationName() + "的key字段[" + keyFieldName + "]必须是字符串类型");
         }
 
         keyFieldIndex = ownerDefinition.getIndexByField1(keyFieldDefinition);
         if (keyFieldIndex == null || !keyFieldIndex.isUnique() || keyFieldIndex.getFields().size() > 1) {
-            addValidatedError(getValidationName() + "的key字段[" + keyField + "]必须是单字段唯一索引");
+            addValidatedError(getValidationName() + "的key字段[" + keyFieldName + "]必须是单字段唯一索引");
         }
     }
 

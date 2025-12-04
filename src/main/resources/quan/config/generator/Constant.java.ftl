@@ -16,9 +16,9 @@ import ${import};
 public enum ${name} {
     <#list rows?keys as key>
 
-    <#if rows[key].right !="">
+    <#if rows[key] !="">
     /**
-     * ${rows[key].right}
+     * ${rows[key]}
      */
     </#if>
     ${key}<#if key?has_next>,<#else>;</#if>
@@ -45,9 +45,9 @@ public enum ${name} {
 public class ${name} {
     <#list rows?keys as key>
 
-    <#if rows[key].right !="">
+    <#if rows[key] !="">
     /**
-     * ${rows[key].right}
+     * ${rows[key]}
      */
     </#if>
     <#if valueField.type=="map">

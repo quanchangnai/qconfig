@@ -100,19 +100,11 @@ public abstract class Generator {
 
     protected String tableBodyStartRow;
 
-
-    //生成或删除代码文件数量
-    protected int count;
-
     //上一次代码生成记录
     protected Map<String, String> oldRecords = new HashMap<>();
 
     //当前代码生成记录
     protected Map<String, String> newRecords = new HashMap<>();
-
-    protected Set<String> addClasses = new HashSet<>();
-
-    protected Set<String> deleteClasses = new HashSet<>();
 
     public Generator(Properties params) {
         parseParams(params);
@@ -379,6 +371,7 @@ public abstract class Generator {
         readHistory();
 
         List<ClassDefinition> classDefinitions = new ArrayList<>();
+
         for (ClassDefinition classDefinition : parser.getClassDefinitions()) {
             if (support(classDefinition) && classDefinition.isSupportedLanguage(this.language())) {
                 classDefinition.reset();
@@ -388,9 +381,7 @@ public abstract class Generator {
         }
 
         generate(classDefinitions);
-
-        oldRecords.keySet().forEach(this::delete);
-
+        delete(oldRecords.keySet());
         writeHistory();
 
         logger.info("生成{}配置代码完成\n", language());
@@ -408,7 +399,7 @@ public abstract class Generator {
         }
     }
 
-    protected void writeHistory() {
+    private void writeHistory() {
         try {
             File historyPath = new File(".history");
             File historyFile = new File(historyPath, "config." + language() + ".json");
@@ -423,28 +414,24 @@ public abstract class Generator {
         newRecords.clear();
     }
 
-    protected void recordHistory(ClassDefinition classDefinition) {
-        String fullName = classDefinition.getFullName();
-
-        if (oldRecords.remove(fullName) == null) {
-            addClasses.add(fullName);
-        }
-
-        newRecords.put(fullName, classDefinition.getVersion());
+    protected String getVersion(ClassDefinition classDefinition) {
+        return classDefinition.getVersion();
     }
 
-    /**
-     * 删除失效的代码文件
-     */
-    protected void delete(String fullName) {
-        count++;
-        deleteClasses.add(fullName);
+    private void recordHistory(ClassDefinition classDefinition) {
+        String fullName = classDefinition.getFullName();
+        oldRecords.remove(fullName);
+        newRecords.put(fullName, getVersion(classDefinition));
+    }
 
-        File classFile = new File(codePath, fullName.replace(".", File.separator) + "." + language());
-        if (classFile.delete()) {
-            logger.error("删除配置[{}]完成", classFile);
-        } else {
-            logger.error("删除配置[{}]失败", classFile);
+    private void delete(Set<String> classFullNames) {
+        for (String classFullName : classFullNames) {
+            File classFile = new File(codePath, classFullName.replace(".", File.separator) + "." + language());
+            if (classFile.delete()) {
+                logger.error("删除配置[{}]完成", classFile);
+            } else {
+                logger.error("删除配置[{}]失败", classFile);
+            }
         }
     }
 
@@ -455,7 +442,7 @@ public abstract class Generator {
     protected boolean checkChanged(ClassDefinition classDefinition) {
         if (incremental) {
             String fullName = classDefinition.getFullName();
-            String version = classDefinition.getVersion();
+            String version = getVersion(classDefinition);
             return !version.equals(oldRecords.get(fullName));
         } else {
             return true;
@@ -485,7 +472,6 @@ public abstract class Generator {
         }
 
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(classFile.toPath()), StandardCharsets.UTF_8)) {
-            count++;
             templates.get(classDefinition.getClass()).process(classDefinition, writer);
         } catch (Exception e) {
             logger.error("生成配置[{}]失败", classFile, e);
@@ -553,7 +539,7 @@ public abstract class Generator {
     protected void prepareConstant(ConstantDefinition constantDefinition) {
         prepareField(constantDefinition.getValueField());
         if (configLoader != null) {
-            constantDefinition.updateVersion(configLoader.getConfigVersion(constantDefinition.getOwnerDefinition(), false));
+            constantDefinition.setVersion(constantDefinition.getVersion() + configLoader.getConfigVersion(constantDefinition.getOwnerDefinition(), false));
             if (checkChanged(constantDefinition)) {
                 List<JSONObject> configJsons = configLoader.loadJsons(constantDefinition.getOwnerDefinition(), false);
                 constantDefinition.setConfigs(configJsons);

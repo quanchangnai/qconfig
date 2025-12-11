@@ -29,11 +29,6 @@ public class ConfigDefinition extends BeanDefinition {
     //列名:字段
     private final Map<String, FieldDefinition> columnFields = new HashMap<>();
 
-    /**
-     * 配置数据版本
-     */
-    private String version2;
-
     private final Set<ConstantDefinition> constantDefinitions = new HashSet<>();
 
     public static final Set<String> illegalNames = CollectionUtils.asSet("Field", "self");
@@ -178,14 +173,6 @@ public class ConfigDefinition extends BeanDefinition {
             }
         }
         return false;
-    }
-
-    public String getVersion2() {
-        return version2;
-    }
-
-    public void setVersion2(String version2) {
-        this.version2 = version2;
     }
 
     @Override

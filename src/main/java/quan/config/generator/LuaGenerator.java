@@ -2,6 +2,7 @@ package quan.config.generator;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import quan.config.definition.BeanDefinition;
 import quan.config.definition.ClassDefinition;
@@ -10,7 +11,9 @@ import quan.config.definition.FieldDefinition;
 import quan.config.definition.Language;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 
@@ -23,6 +26,8 @@ public class LuaGenerator extends Generator {
      * 自定义的配置数据读取器，为空时直接生成配置数据到代码文件里
      */
     private String configReader;
+
+    private Map<String, String> configVersions = new HashMap<>();
 
     public LuaGenerator(Properties options) {
         super(options);
@@ -56,8 +61,9 @@ public class LuaGenerator extends Generator {
             ConfigDefinition configDefinition = (ConfigDefinition) beanDefinition;
             if (!StringUtils.isBlank(configReader)) {
                 configDefinition.getParams().put("configReader", configReader);
+                configVersions.put(configDefinition.getFullName(), DigestUtils.md5Hex(configReader + configDefinition.getVersion()));
             } else if (configLoader != null) {
-                configDefinition.setVersion2(configDefinition.getVersion() + ":" + configLoader.getConfigVersion(configDefinition, false));
+                configVersions.put(configDefinition.getFullName(), DigestUtils.md5Hex(configReader + configLoader.getConfigVersion(configDefinition, false)));
                 if (checkChanged(configDefinition)) {
                     List<String> configs = new ArrayList<>();
                     configDefinition.getParams().put("configs", configs);
@@ -70,33 +76,12 @@ public class LuaGenerator extends Generator {
         }
     }
 
-    protected final boolean checkChanged(ClassDefinition classDefinition) {
-        if (incremental) {
-            String fullName = classDefinition.getFullName();
-            String version = getVersion(classDefinition);
-            return !version.equals(oldRecords.get(fullName));
-        } else {
-            return true;
-        }
-    }
-
-    private String getVersion(ClassDefinition classDefinition) {
-        if (classDefinition instanceof ConfigDefinition) {
-            return ((ConfigDefinition) classDefinition).getVersion2();
+    @Override
+    protected String getVersion(ClassDefinition classDefinition) {
+        if (classDefinition instanceof ConfigDefinition && configVersions.containsKey(classDefinition.getFullName())) {
+            return configVersions.get(classDefinition.getFullName());
         } else {
             return classDefinition.getVersion();
-        }
-    }
-
-    @Override
-    public void recordHistory(ClassDefinition classDefinition) {
-        if (classDefinition instanceof ConfigDefinition) {
-            String fullName = classDefinition.getFullName();
-            String version = getVersion(classDefinition);
-            oldRecords.remove(fullName);
-            newRecords.put(fullName, version);
-        } else {
-            super.recordHistory(classDefinition);
         }
     }
 

@@ -1,7 +1,6 @@
 package quan.config.definition;
 
 import com.alibaba.fastjson2.JSONObject;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import quan.config.definition.DependentSource.DependentType;
 
@@ -33,8 +32,6 @@ public class ConstantDefinition extends ClassDefinition {
     private String commentField;
 
     private Map<String, String> rows = new TreeMap<>();
-
-    private String updatedVersion;
 
     @Override
     public int getKind() {
@@ -132,27 +129,6 @@ public class ConstantDefinition extends ClassDefinition {
         return rows;
     }
 
-
-    @Override
-    public void setVersion(String version) {
-        super.setVersion(version);
-        updatedVersion = null;
-    }
-
-    @Override
-    public String getVersion() {
-        if (updatedVersion != null) {
-            return updatedVersion;
-        } else {
-            return super.getVersion();
-        }
-    }
-
-    public void updateVersion(String extVersion) {
-        updatedVersion = null;
-        this.updatedVersion = DigestUtils.md5Hex(getVersion() + extVersion);
-    }
-
     @Override
     public void validate2() {
         if (ownerDefinition == null) {
@@ -222,7 +198,6 @@ public class ConstantDefinition extends ClassDefinition {
             addDependent(DependentType.FIELD, this, valueField, valueField.getTypeBean());
             addDependent(DependentType.FIELD_VALUE, this, valueField, valueField.getValueTypeBean());
         }
-
     }
 
 }

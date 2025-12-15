@@ -238,9 +238,9 @@ public class DefinitionConfigLoader extends ConfigLoader {
                 }
 
                 List<JSONObject> jsons = reader.getJsons();
-                JSONObject row = new JSONObject();
 
                 for (JSONObject json : jsons) {
+                    JSONObject row = new JSONObject();
                     json.forEach((fieldName, fieldValue) -> {
                         FieldDefinition fieldDefinition = configDefinition.getField(fieldName);
                         if (fieldDefinition == null) {
@@ -256,7 +256,7 @@ public class DefinitionConfigLoader extends ConfigLoader {
 
             String jsonFileName = configDefinition.getLongName() + ".json";
             try (FileOutputStream fos = new FileOutputStream(new File(pathFile, jsonFileName))) {
-                JSON.writeTo(fos, rows, JSONWriter.Feature.PrettyFormat,  JSONWriter.Feature.ReferenceDetection);
+                JSON.writeTo(fos, rows, JSONWriter.Feature.PrettyFormat);
             } catch (Exception e) {
                 logger.error("配置[{}]写到JSON文件出错", configDefinition.getName(), e);
             }

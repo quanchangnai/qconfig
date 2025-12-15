@@ -570,7 +570,9 @@ public class DefinitionConfigLoader extends ConfigLoader {
 
             for (Object beanValidation : beanDefinition.getValidations()) {
                 try {
-                    Object result = Ognl.getValue(beanValidation, createOgnlContext(beanJson), beanJson);
+                    OgnlContext ognlContext = createOgnlContext(beanJson);
+                    ognlContext.put("row", rowJson);
+                    Object result = Ognl.getValue(beanValidation, ognlContext, beanJson);
                     if (result != null && !(Boolean) result) {
                         validatedErrors.add(String.format("配置[%s]的第%s行数据不符合%s校验规则:%s", table, rowNum, validationOwnerInfo, beanValidation));
                     }
@@ -598,13 +600,12 @@ public class DefinitionConfigLoader extends ConfigLoader {
                     }
 
                     try {
-                        OgnlContext ognlContext = createOgnlContext(fieldValue);
+                        OgnlContext ognlContext = createOgnlContext(beanJson);
                         ognlContext.put("row", rowJson);
-                        ognlContext.put("owner", beanJson);
-
-                        Object result = Ognl.getValue(fieldValidation, ognlContext, fieldValue);
+                        ognlContext.put("value", fieldValue);
+                        Object result = Ognl.getValue(fieldValidation, ognlContext, beanJson);
                         if (result != null && !(Boolean) result) {
-                            validatedErrors.add(String.format("配置[%s]的第%s行[%s]数据不符合%s校验规则", table, rowNum, columnName, validationOwnerInfo));
+                            validatedErrors.add(String.format("配置[%s]的第%s行[%s]数据不符合%s校验规则：%s", table, rowNum, columnName, validationOwnerInfo, fieldValidation));
                         }
                     } catch (Throwable e) {
                         String reason = getOgnlErrorReason(e);
